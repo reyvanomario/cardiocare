@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
+    path('obat/', include('beli_obat.urls'))
 ]
