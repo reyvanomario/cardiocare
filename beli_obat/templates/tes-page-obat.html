@@ -1,0 +1,15 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+{% for obat in list_obat %}
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <h2 style="margin: 0 10px 0 0;">{{ obat.nama_obat }}</h2>
+    <h2>Harga: {{ obat.harga }}</h2>
+    <button type="button">Beli</button>
+</div>
+
+
+{% endfor %}
+
+
+{% endblock %}

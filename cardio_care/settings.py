@@ -89,7 +89,7 @@ DATABASES = {
              os.getenv('DB_ENGINE', 'sqlite3')
          ),
          'NAME': os.getenv('DB_NAME', 'polls'),
-         'USER': os.getenv('DB_USERNAME'),
+         'USER': os.getenv('DB_USER'),
          'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
          'HOST': os.getenv('DB_HOST', '127.0.0.1'),
          'PORT': os.getenv('DB_PORT', 5432),
