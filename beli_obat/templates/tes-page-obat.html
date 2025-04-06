@@ -1,5 +1,13 @@
 {% extends 'base.html' %} 
 {% block content %}
+<div>
+    <form action="http://127.0.0.1:8001/api/logout/" method="post">
+        <button type="submit" style="padding: 8px 16px; background-color: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Logout
+        </button>
+    </form>
+</div>
+
 <h1>Username: {{ user_data.username }}</h1>
 
 {% for obat in list_obat %}

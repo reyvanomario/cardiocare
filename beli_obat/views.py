@@ -1,5 +1,6 @@
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 import psycopg2
 import os
 import csv
@@ -65,6 +66,10 @@ def show_page_obat(request):
     return render(request, "tes-page-obat.html", context)
     
    
+def logout_view(request):
+    response = HttpResponseRedirect(reverse('login'))
+    response.delete_cookie('jwt')  # Hapus cookie JWT
+    return response
     
     
 
