@@ -12,11 +12,13 @@ services:
     env_file:
       - .env
  
-  django-web:
+  django-main:
     build: .
-    container_name: django-docker
+    container_name: django-main
     ports:
       - "8000:8000"
+    networks:
+      - my-network
     depends_on:
       - db
     environment:
@@ -37,3 +39,7 @@ services:
       - .:/app
 volumes:
   postgres_data:
+
+networks:
+  my-network:
+    external: true

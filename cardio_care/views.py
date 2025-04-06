@@ -24,7 +24,6 @@ def login(request):
     return Response({'token': token.key, 'user': serializer.data})
 
 
-    return Response({})
 
 
 @api_view(['POST'])

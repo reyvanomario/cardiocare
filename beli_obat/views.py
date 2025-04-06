@@ -1,9 +1,12 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
 import psycopg2
 import os
 import csv
 from .models import Obat
+
+import jwt
+import requests
 
 def test_view(request):
     con = psycopg2.connect(
@@ -33,10 +36,37 @@ def test_view(request):
 
 
 def show_page_obat(request):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+
+    
+    # Ambil public key dari authentication service
+    public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+    public_key_response.raise_for_status()
+    public_key = public_key_response.json()['public_key']
+
+    token_bytes = token.encode('utf-8')
+    
+    # Validasi JWT
+    payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
+    
+    # Ambil data user dari authentication service
+    user_response = requests.get(
+        f'http://django-auth:8000/api/user/',
+        cookies={'jwt': token}
+    )
+    user_data = user_response.json()
+    
     list_obat = Obat.objects.all()
-    context = {'list_obat': list_obat}
+    context = {'list_obat': list_obat, 'user_data': user_data}
 
     return render(request, "tes-page-obat.html", context)
+    
+   
+    
+    
 
 
 
