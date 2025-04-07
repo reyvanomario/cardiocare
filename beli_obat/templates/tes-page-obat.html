@@ -1,12 +1,8 @@
 {% extends 'base.html' %} 
 {% block content %}
-<div>
-    <form action="http://127.0.0.1:8001/api/logout/" method="post">
-        <button type="submit" style="padding: 8px 16px; background-color: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Logout
-        </button>
-    </form>
-</div>
+<button onclick="handleLogout()" style="padding: 8px 16px; background-color: #e53e3e; color: white;">
+  Logout
+</button>
 
 <h1>Username: {{ user_data.username }}</h1>
 
@@ -20,5 +16,24 @@
 
 {% endfor %}
 
+
+<script>
+    async function handleLogout() {
+      try {
+        const response = await fetch('http://localhost:8001/api/logout/', {
+          method: 'POST',
+          credentials: 'include'  // mengirim cookie buat dihapus
+        });
+  
+        if (response.ok) {
+          window.location.href = "http://localhost:3000/login/";  
+        } else {
+          alert("Logout gagal!");
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+</script>
 
 {% endblock %}
