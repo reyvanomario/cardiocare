@@ -8,6 +8,7 @@ from .models import Obat
 
 import jwt
 import requests
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 def test_view(request):
     con = psycopg2.connect(
@@ -35,6 +36,46 @@ def test_view(request):
 
     return HttpResponse("Data obat berhasil diambil.")
 
+def validate_jwt_and_get_user(token):
+    try:
+        public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+        public_key_response.raise_for_status()
+        public_key = public_key_response.json()['public_key']
+
+        
+        
+        if not public_key:
+            return None, HttpResponseForbidden("Invalid auth service response")
+        
+        token_bytes = token.encode('utf-8')
+
+        # 2. Decode & validasi JWT
+        try:
+            payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
+        except jwt.ExpiredSignatureError:
+            return HttpResponseForbidden("Token telah kedaluwarsa. Silakan login kembali.")
+        except jwt.InvalidTokenError:
+            return HttpResponseForbidden("Token tidak valid. Silakan login.")
+
+        # 3. Cek user 
+        try:
+            user_response = requests.get(
+                f'http://django-auth:8000/api/user/',
+                cookies={'jwt': token}
+            )
+            user_data = user_response.json()
+            return user_data, None
+        except Exception as e:
+            return None, HttpResponseForbidden("User tidak terdaftar di sistem")
+
+    except requests.exceptions.RequestException as e:
+        return None, HttpResponseForbidden(f"Gagal terhubung ke auth service: {str(e)}")
+    
+    except ExpiredSignatureError:
+        return None, HttpResponseForbidden("Sesi telah berakhir. Silakan login kembali.")
+    
+    except InvalidTokenError as e:
+        return None, HttpResponseForbidden(f"Token tidak valid: {str(e)}")
 
 def show_page_obat(request):
     token = request.COOKIES.get('jwt')
@@ -42,31 +83,12 @@ def show_page_obat(request):
     if token is None:
         return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
 
-    
-    # Ambil public key dari authentication service
-    public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
-    public_key_response.raise_for_status()
-    public_key = public_key_response.json()['public_key']
-
-    token_bytes = token.encode('utf-8')
-    
-    # Validasi JWT
-    try:
-        payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
-    except jwt.ExpiredSignatureError:
-        return HttpResponseForbidden("Token telah kedaluwarsa. Silakan login kembali.")
-    except jwt.InvalidTokenError:
-        return HttpResponseForbidden("Token tidak valid. Silakan login.")
-    
-    # Ambil data user dari authentication service
-    user_response = requests.get(
-        f'http://django-auth:8000/api/user/',
-        cookies={'jwt': token}
-    )
-    user_data = user_response.json()
+    user, error = validate_jwt_and_get_user(token)
+    if error:
+        return error
     
     list_obat = Obat.objects.all()
-    context = {'list_obat': list_obat, 'user_data': user_data}
+    context = {'list_obat': list_obat, 'user_data': user}
 
     return render(request, "tes-page-obat.html", context)
     
