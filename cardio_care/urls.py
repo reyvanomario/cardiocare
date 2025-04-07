@@ -12,5 +12,5 @@ def home(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
-    path('beli_obat/', include('beli_obat.urls')),
+    path('beli-obat/', include('beli_obat.urls')),
 ]

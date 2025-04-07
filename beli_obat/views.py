@@ -126,6 +126,17 @@ if __name__ == '__main__':
 
 
 def katalog_obat(request):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+
+    user, error = validate_jwt_and_get_user(token)
+
+    if error:
+        return error
+    
+
     # Mulai dengan semua obat
     obat_query = Obat.objects.all()
     
@@ -157,6 +168,7 @@ def katalog_obat(request):
         'obat_list': obat_list,
         'current_query': q,
         'current_sort': sort,
+        'user': user
     }
     
     return render(request, 'katalog.html', context)

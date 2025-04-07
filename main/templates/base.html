@@ -74,6 +74,10 @@
                     </li>
                 </ul>
             </div>
+            <h2>Tes Username: {{ user.username }}</h2>
+            <button onclick="handleLogout()" style="padding: 8px 16px; background-color: #e53e3e; color: white;">
+                Logout
+            </button>
         </div>
     </nav>
 
@@ -115,3 +119,23 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+
+<script>
+    async function handleLogout() {
+      try {
+        const response = await fetch('http://localhost:8001/api/logout/', {
+          method: 'POST',
+          credentials: 'include'  // mengirim cookie buat dihapus
+        });
+  
+        if (response.ok) {
+          window.location.href = "http://localhost:3000/login/";  
+        } else {
+          alert("Logout gagal!");
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+</script>
