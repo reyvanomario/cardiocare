@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1>Checkout page, username: {{ user.username }}</h1>
+
+<h2>{{ obat.nama_obat }}</h2>
+
+<div class="quantity-control">
+    <button type="button" onclick="decrementQuantity()">-</button>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" max="10">
+    <button type="button" onclick="incrementQuantity()">+</button>
+</div>
+
+<h2>Total harga: <span id="total-harga">Rp {{ obat.harga }}</span></h2>
+
+<a id="checkoutLink" href="#" data-base-url="{% url 'beli_obat:checkout-obat' obat.id 0 %}">
+    <button type="button">Checkout</button>
+</a>
+
+
+
+<script>
+    const hargaPerUnit = JSON.parse('{{ obat.harga }}');
+
+
+    function updateTotalHarga(quantity) {
+        const totalHargaElement = document.getElementById('total-harga');
+        const totalHarga = hargaPerUnit * quantity;
+        totalHargaElement.textContent = `Rp ${totalHarga.toLocaleString()}`;
+    }
+
+    function incrementQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        let currentValue = parseInt(quantityInput.value) || 0;
+        quantityInput.value = currentValue + 1;
+        updateTotalHarga(currentValue + 1);
+        updateCheckoutLink(currentValue + 1);
+    }
+
+    function decrementQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        let currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+            updateTotalHarga(currentValue - 1);
+            updateCheckoutLink(currentValue - 1);
+        }
+    }
+
+    function updateCheckoutLink(quantity) {
+        const checkoutLink = document.getElementById('checkoutLink');
+        const baseUrl = checkoutLink.dataset.baseUrl;
+        const updatedUrl = baseUrl.replace('/0/', `/${quantity}/`);
+        checkoutLink.href = updatedUrl;
+    }
+
+    updateTotalHarga(1);
+    updateCheckoutLink(1);
+</script>
+
+{% endblock %}
+

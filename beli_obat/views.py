@@ -4,7 +4,7 @@ from django.urls import reverse
 import psycopg2
 import os
 import csv
-from .models import Obat
+from .models import Obat, TransaksiPembelianObat
 
 import jwt
 import requests
@@ -16,6 +16,7 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Obat
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 def test_view(request):
     con = psycopg2.connect(
@@ -99,11 +100,6 @@ def show_page_obat(request):
 
     return render(request, "tes-page-obat.html", context)
     
-   
-def logout_view(request):
-    response = HttpResponseRedirect(reverse('login'))
-    response.delete_cookie('jwt')  # Hapus cookie JWT
-    return response
     
     
 
@@ -126,17 +122,6 @@ if __name__ == '__main__':
 
 
 def katalog_obat(request):
-    token = request.COOKIES.get('jwt')
-
-    if token is None:
-        return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
-
-    user, error = validate_jwt_and_get_user(token)
-
-    if error:
-        return error
-    
-
     # Mulai dengan semua obat
     obat_query = Obat.objects.all()
     
@@ -167,8 +152,7 @@ def katalog_obat(request):
     context = {
         'obat_list': obat_list,
         'current_query': q,
-        'current_sort': sort,
-        'user': user
+        'current_sort': sort
     }
     
     return render(request, 'katalog.html', context)
@@ -179,3 +163,38 @@ def detail_obat(request, obat_id):
     print(f"Obat: {obat.nama_obat}")
     print(f"Aturan Pakai: {obat.aturan_pakai}")
     return render(request, 'detail_obat.html', {'obat': obat})
+
+
+def show_checkout_page(request, obat_id):
+    obat = get_object_or_404(Obat, id=obat_id)
+
+    context = {'obat': obat}
+
+    return render(request, 'checkout_page.html', context)
+
+
+def checkout_obat(request, obat_id, quantity):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+        return HttpResponseRedirect("http://localhost:3000/login/")
+
+    user, error = validate_jwt_and_get_user(token)
+
+    if error:
+        return error
+    
+    obat_dipilih = get_object_or_404(Obat, id=obat_id)
+    total_biaya = obat_dipilih.harga * quantity
+    
+    
+    new_transaksi = TransaksiPembelianObat.objects.create(
+        user_id=user['id'],
+        obat=obat_dipilih,
+        total_biaya=total_biaya
+    )
+
+    messages.success(request, 'Pembelian berhasil!')
+
+    return HttpResponseRedirect(reverse('beli_obat:detail_obat', args=[obat_id]))
