@@ -631,6 +631,15 @@
 {% endblock %}
 
 {% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+
 <!-- Hero Section with animations -->
 <div class="hero-section text-center">
     <!-- Floating Icons -->
@@ -889,5 +898,16 @@
         // Run once on load
         animateElements();
     });
+
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+        alert.style.transition = 'opacity 0.5s ease-out';
+        alert.style.opacity = '0';
+        setTimeout(() => {
+            alert.remove();
+        }, 500); 
+        });
+    }, 5000);
 </script>
 {% endblock %}

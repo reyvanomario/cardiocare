@@ -166,9 +166,20 @@ def detail_obat(request, obat_id):
 
 
 def show_checkout_page(request, obat_id):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+        return HttpResponseRedirect("http://localhost:3000/login/")
+
+    user, error = validate_jwt_and_get_user(token)
+
+    if error:
+        return error
+    
     obat = get_object_or_404(Obat, id=obat_id)
 
-    context = {'obat': obat}
+    context = {'obat': obat, 'user':user}
 
     return render(request, 'checkout_page.html', context)
 
@@ -197,4 +208,4 @@ def checkout_obat(request, obat_id, quantity):
 
     messages.success(request, 'Pembelian berhasil!')
 
-    return HttpResponseRedirect(reverse('beli_obat:detail_obat', args=[obat_id]))
+    return HttpResponseRedirect(reverse('main:home'))
