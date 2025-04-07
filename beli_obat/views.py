@@ -51,7 +51,12 @@ def show_page_obat(request):
     token_bytes = token.encode('utf-8')
     
     # Validasi JWT
-    payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
+    try:
+        payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
+    except jwt.ExpiredSignatureError:
+        return HttpResponseForbidden("Token telah kedaluwarsa. Silakan login kembali.")
+    except jwt.InvalidTokenError:
+        return HttpResponseForbidden("Token tidak valid. Silakan login.")
     
     # Ambil data user dari authentication service
     user_response = requests.get(
