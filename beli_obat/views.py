@@ -170,7 +170,9 @@ def show_checkout_page(request, obat_id):
 
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
-        return HttpResponseRedirect("http://localhost:3000/login/")
+        next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
+        login_url = f"http://localhost:3000/login/?next={next_url}"
+        return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
 
@@ -189,7 +191,9 @@ def checkout_obat(request, obat_id, quantity):
 
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
-        return HttpResponseRedirect("http://localhost:3000/login/")
+        next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
+        login_url = f"http://localhost:3000/login/?next={next_url}"
+        return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
 
@@ -203,6 +207,7 @@ def checkout_obat(request, obat_id, quantity):
     new_transaksi = TransaksiPembelianObat.objects.create(
         user_id=user['id'],
         obat=obat_dipilih,
+        quantity=quantity,
         total_biaya=total_biaya
     )
 

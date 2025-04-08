@@ -23,4 +23,5 @@ class TransaksiPembelianObat(models.Model):
     user_id = models.UUIDField(null=True)
     waktu_transaksi = models.DateTimeField(auto_now_add=True)
     obat = models.ForeignKey(Obat, on_delete=models.CASCADE, related_name='transaksi', verbose_name='Obat yang dibeli')
+    quantity = models.IntegerField(default=0)
     total_biaya = models.IntegerField()
