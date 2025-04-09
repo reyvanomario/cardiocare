@@ -1,0 +1,184 @@
+<title>Penyakit Jantung Koroner</title>
+<style>
+    /* Custom Styles with Red-White Theme */
+    .heart-article {
+        font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.7;
+        color: #333;
+        background-color: #fff5f5;
+    }
+    .article-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(198, 40, 40, 0.08);
+        overflow: hidden;
+    }
+    .article-title {
+        color: #c62828;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .article-meta {
+        color: #e53935;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .article-divider {
+        border-color: #ffcdd2;
+        margin: 1rem 0;
+    }
+    .section-red {
+        background-color: #ffebee;
+        border-left: 4px solid #ef5350;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .section-white {
+        background-color: white;
+        border-left: 4px solid #c62828;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .section-title {
+        color: #b71c1c;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .highlight-red {
+        color: #c62828;
+        font-weight: 600;
+    }
+    .content-list {
+        padding-left: 1.25rem;
+        margin: 1rem 0;
+    }
+    .content-list li {
+        margin-bottom: 0.75rem;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    .content-list li:before {
+        content: "•";
+        color: #e53935;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+    .article-footer {
+        border-top: 1px dashed #ef9a9a;
+        padding-top: 1rem;
+        margin-top: 1.5rem;
+    }
+    .risk-factor {
+        background-color: #ffebee;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+    .risk-factor-title {
+        color: #c62828;
+        font-weight: 600;
+    }
+</style>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mx-auto py-8 px-4 heart-article">
+    <div class="max-w-4xl mx-auto article-container">
+        <!-- Header -->
+        <div class="px-8 py-6 text-center">
+            <h1 class="article-title">Penyakit Jantung Koroner</h1>
+            <div class="flex justify-center items-center mt-2 article-meta">
+                <span class="mx-4"><strong>Halodoc</strong></span>
+                <span>17 Juli 2024</span>
+            </div>
+            <div class="my-4 border-b-2 article-divider"></div>
+        </div>
+
+        <!-- Article Content -->
+        <div class="px-8 pb-8">
+            <!-- Introduction -->
+                <p class="text-justify">
+                    Penyakit jantung koroner adalah jenis penyakit jantung ketika arteri jantung tidak dapat mengalirkan cukup darah yang kaya oksigen ke jantung. Kondisi ini mempengaruhi arteri koroner yang lebih besar pada permukaan jantung. 
+                </p>
+                <p class="text-justify mt-4">
+                    Masalah gangguan jantung ini dapat menimbulkan sejumlah keluhan. Mulai dari nyeri dada, sesak napas dan gejala serangan jantung. Selain itu, penyakit ini menjadi salah satu momok serius yang perlu kamu waspadai. Sebab, tanpa penanganan yang tepat, penyakit ini dapat menyebabkan gagal jantung.
+                </p>
+            </div>
+
+            <!-- Causes -->
+            <div class="section-white">
+                <h2 class="section-title">Penyebab Penyakit Jantung Koroner</h2>
+                <p class="text-justify">
+                    Ada banyak penyebab penyakit ini. Meski begitu, penelitian telah menunjukkan bahwa ada beberapa hal yang bisa memicunya, seperti:
+                </p>
+                <ul>
+                    <li>Tekanan darah tinggi</li>
+                    <li>Kolesterol dan trigliserida tinggi</li>
+                    <li>Diabetes</li>
+                    <li>Kegemukan</li>
+                    <li>Kebiasaan merokok</li>
+                    <li>Peradangan pada pembuluh darah</li>
+                </ul>
+                <p class="text-justify mt-4">
+                    Mereka semua merupakan faktor utama yang melukai dinding arteri, sehingga menyebabkan penyakit jantung koroner. Saat arteri rusak, plak akan lebih mudah menempel pada arteri sehingga lambat laun menebal.
+                </p>
+                <p class="text-justify mt-4">
+                    Penyempitan pembuluh kemudian akan menghambat aliran darah kaya oksigen ke jantung. Jika plak ini pecah, trombosit akan menempel pada luka di arteri dan membentuk gumpalan darah yang memblokir arteri. Ini dapat menyebabkan angina semakin parah. Ketika bekuan darah cukup besar, maka arteri akan tertekan yang menyebabkan infark miokard atau kematian otot jantung.
+                </p>
+            </div>
+
+            <!-- Risk Factors -->
+            <div class="section-red">
+                <h2 class="section-title">Faktor Risiko</h2>
+                
+                <div class="risk-factor">
+                    <div class="risk-factor-title">1. Usia Lanjut</div>
+                    <p class="mt-1">Pertambahan usia menyebabkan arteri menyempit dan rapuh.</p>
+                
+                    <div class="risk-factor-title">2. Berjenis Kelamin Pria</div>
+                    <p class="mt-1">Menurut penelitian, pria lebih cenderung mengalami penyakit ini karena kurang adaptif dalam mengatasi stres yang berkontribusi pada peningkatan risiko penyakit jantung koroner.</p>
+                
+                    <div class="risk-factor-title">3. Riwayat Keluarga</div>
+                    <p class="mt-1">Apabila ada anggota keluarga yang mengidap gangguan jantung, maka risiko penyakit jantung koroner lebih meningkat.</p>
+    
+                    <div class="risk-factor-title">4. Kebiasaan Merokok</div>
+                    <p class="mt-1">Nikotin dapat menyebabkan penyempitan arteri sementara karbon monoksida menyebabkan kerusakan pembuluh.</p>
+        
+                    <div class="risk-factor-title">5. Memiliki Hipertensi</div>
+                    <p class="mt-1">Memiliki riwayat tekanan darah tinggi dan/atau kadar lemak darah yang tinggi dapat memicu penyakit jantung koroner.</p>
+            
+                    <div class="risk-factor-title">6. Trauma Mental</div>
+                    <p class="mt-1">Memiliki trauma mental atau stres psikologis berat jangka waktu panjang juga bisa menempatkan seseorang pada risiko penyakit jantung koroner.</p>
+                </div>
+            </div>
+
+            <!-- Symptoms -->
+            <div class="section-white">
+                <h2 class="section-title">Gejala Penyakit Jantung Koroner</h2>
+                <p class="text-justify">
+                    Gejala yang timbul oleh penyakit jantung koroner, meliputi:
+                </p>
+                <ul>
+                    <li>Nyeri dada atau ketidaknyamanan pada dada yang menjalar ke leher, rahang, bahu, dan tangan sisi kiri, punggung, perut sisi kiri (sering dianggap maag)</li>
+                    <li>Keringat dingin, mual, muntah, atau mudah lelah</li>
+                    <li>Irama denyut jantung yang tidak stabil (aritmia)</li>
+                    <li>Bisa menyebabkan henti jantung (sudden cardiac arrest) yang bila tidak tertangani dengan cepat dapat menyebabkan kematian</li>
+                </ul>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center article-footer">
+                <p class="text-sm text-gray-600">
+                    <strong><em>Source : https://www.halodoc.com/kesehatan/penyakit-jantung-koroner</em></strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
