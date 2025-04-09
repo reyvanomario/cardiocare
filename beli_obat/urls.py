@@ -1,5 +1,5 @@
 from django.urls import path
-from beli_obat.views import test_view, show_page_obat, show_checkout_page, checkout_obat, otp_view, verify_otp
+from beli_obat.views import test_view, show_page_obat, show_checkout_page, checkout_obat, otp_view, verify_otp, view_riwayat_pembelian_obat
 
 from . import views
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('checkout-obat/<uuid:obat_id>/<int:quantity>/', checkout_obat, name='checkout-obat'),
     path('otp/', otp_view, name='otp_view'),
     path('verify-otp/', verify_otp, name='verify_otp'),
+    path('riwayat-pembelian-obat/', view_riwayat_pembelian_obat, name='view_riwayat_pembelian_obat')
 ]

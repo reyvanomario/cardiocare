@@ -131,6 +131,20 @@ if __name__ == '__main__':
 
 
 def katalog_obat(request):
+    is_authenticated = False
+
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        user = None
+    else:
+        user, error = validate_jwt_and_get_user(token)
+        is_authenticated = True
+
+        if error:
+            return error
+
+    
     # Mulai dengan semua obat
     obat_query = Obat.objects.all()
     
@@ -161,17 +175,33 @@ def katalog_obat(request):
     context = {
         'obat_list': obat_list,
         'current_query': q,
-        'current_sort': sort
+        'current_sort': sort,
+        'is_authenticated': is_authenticated,
+        'user': user
     }
     
     return render(request, 'katalog.html', context)
 
 def detail_obat(request, obat_id):
+    is_authenticated = False
+
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        user = None
+    else:
+        user, error = validate_jwt_and_get_user(token)
+        is_authenticated = True
+
+        if error:
+            return error
+        
     obat = get_object_or_404(Obat, id=obat_id)
-    # Tambahkan print untuk debugging
-    print(f"Obat: {obat.nama_obat}")
-    print(f"Aturan Pakai: {obat.aturan_pakai}")
-    return render(request, 'detail_obat.html', {'obat': obat})
+
+
+    context = {'obat': obat, 'is_authenticated': is_authenticated, 'user': user}
+
+    return render(request, 'detail_obat.html', context)
 
 
 def show_checkout_page(request, obat_id):
@@ -190,7 +220,7 @@ def show_checkout_page(request, obat_id):
     
     obat = get_object_or_404(Obat, id=obat_id)
 
-    context = {'obat': obat, 'user':user}
+    context = {'obat': obat, 'user':user, 'is_authenticated': True}
 
     return render(request, 'checkout_page.html', context)
 
@@ -270,7 +300,7 @@ def otp_view(request):
         html_message=html_message,
     )
 
-    context = {'obat': obat_dipilih} 
+    context = {'obat': obat_dipilih, 'user_email': user['email'], 'is_authenticated': True, 'user': user} 
 
     return render(request, 'otp.html', context)
 
@@ -325,6 +355,10 @@ def verify_otp(request):
                 quantity=pending_transaction['quantity'],
                 total_biaya=pending_transaction['total_biaya']
             )
+
+            obat_dipilih.stok -= pending_transaction['quantity']
+            obat_dipilih.save()
+
             # Hapus data session
             del request.session['pending_transaction']
             del request.session['otp_secret_key']
@@ -335,6 +369,33 @@ def verify_otp(request):
             messages.error(request, 'OTP tidak valid.')
             return HttpResponseRedirect(reverse('beli_obat:otp_view'))
     return HttpResponseRedirect(reverse('beli_obat:otp_view'))
+
+
+def view_riwayat_pembelian_obat(request):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+        next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
+        login_url = f"http://localhost:3000/login/?next={next_url}"
+        return HttpResponseRedirect(login_url)
+
+    user, error = validate_jwt_and_get_user(token)
+
+    if error:
+        return error
+    
+
+
+    list_transaksi = TransaksiPembelianObat.objects.filter(user_id=UUID(user['id'])).order_by('-waktu_transaksi')
+    
+    context = {
+        'list_transaksi': list_transaksi,
+        'is_authenticated': True,
+        'user': user
+    }
+
+    return render(request, 'riwayat_pembelian_obat.html', context)
 
 
 

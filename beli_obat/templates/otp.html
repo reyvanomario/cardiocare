@@ -114,7 +114,7 @@
     <div class="otp-section fade-in">
         <div class="otp-card">
             <h1 class="product-title">Verifikasi OTP</h1>
-            <p class="otp-instruction">Masukkan 6 digit kode OTP yang telah dikirim ke email Anda</p>
+            <p class="otp-instruction">Masukkan 6 digit kode OTP yang telah dikirim ke email Anda {{ user_email }}</p>
             
             <form id="otpForm" method="post" action="{% url 'beli_obat:verify_otp' %}">
                 {% csrf_token %}
