@@ -1,28 +1,185 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Checkout {{ obat.nama_obat }} - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-section {
+        padding: 2rem 0;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .checkout-card {
+        background: var(--light-red);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: var(--soft-shadow);
+        margin-bottom: 2rem;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .quantity-control button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: var(--primary-red);
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .quantity-control button:hover {
+        background: var(--dark-red);
+        transform: scale(1.1);
+    }
+
+    #quantity {
+        width: 60px;
+        text-align: center;
+        font-size: 1.2rem;
+        border: 2px solid var(--primary-red);
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+
+    .total-price {
+        font-size: 1.8rem;
+        color: var(--primary-red);
+        margin: 2rem 0;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .checkout-button {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.2rem;
+        background: var(--primary-red);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .checkout-button:hover {
+        background: var(--dark-red);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.2);
+    }
+
+    .user-info {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-red);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:katalog_obat' %}">Katalog Obat</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:detail_obat' obat.id %}">{{ obat.nama_obat }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+        </ol>
+    </nav>
 
-<h1>Checkout page, username: {{ user.username }}</h1>
+    <div class="checkout-section fade-in">
+        <div class="checkout-card">
+            <h1 class="product-title">Konfirmasi Pembelian</h1>
+            
+            <div class="user-info">
+                <div class="username">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Pengguna: {{ user.username }}
+                </div>
+                <div class="nomor_telepon">
+                    <i class="bi bi-telephone me-2"></i>
+                    Nomor telepon: {{ user.nomor_telepon }}
+                </div>
+            </div>
 
-<h2>{{ obat.nama_obat }}</h2>
+            <div class="product-info">
+                <h2 class="product-title">{{ obat.nama_obat }}</h2>
+                <div class="stok-indicator">
+                    {% if obat.stok > 0 %}
+                        <span class="in-stock"><i class="bi bi-check-circle me-1"></i> Stok Tersedia: {{ obat.stok }}</span>
+                    {% else %}
+                        <span class="out-of-stock"><i class="bi bi-x-circle me-1"></i> Stok Habis</span>
+                    {% endif %}
+                </div>
+            </div>
 
-<div class="quantity-control">
-    <button type="button" onclick="decrementQuantity()">-</button>
-    <input type="number" id="quantity" name="quantity" value="1" min="1" max="10">
-    <button type="button" onclick="incrementQuantity()">+</button>
+            <div class="quantity-control">
+                <button type="button" onclick="decrementQuantity()">-</button>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" max="10">
+                <button type="button" onclick="incrementQuantity()">+</button>
+            </div>
+
+            <div class="total-price">
+                Total Harga: <span id="total-harga">Rp {{ obat.harga }}</span>
+            </div>
+
+            <a id="checkoutLink" href="#" data-base-url="{% url 'beli_obat:checkout-obat' obat.id 0 %}">
+                <button class="checkout-button pulse-animation">
+                    <i class="bi bi-credit-card me-2"></i>Lanjutkan Pembayaran
+                </button>
+            </a>
+        </div>
+
+        <!-- Informasi Pembayaran -->
+        <div class="detail-card fade-in">
+            <h5 class="detail-card-title"><i class="bi bi-info-circle me-2"></i>Informasi Pembayaran</h5>
+            <ul>
+                <li>Pembayaran dapat dilakukan melalui transfer bank atau kartu kredit</li>
+                <li>Pesanan akan diproses setelah pembayaran diterima</li>
+                <li>Estimasi pengiriman 1-3 hari kerja</li>
+            </ul>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<h2>Total harga: <span id="total-harga">Rp {{ obat.harga }}</span></h2>
-
-<a id="checkoutLink" href="#" data-base-url="{% url 'beli_obat:checkout-obat' obat.id 0 %}">
-    <button type="button">Checkout</button>
-</a>
-
-
-
+{% block extra_js %}
 <script>
+    // Update fungsi JavaScript dengan animasi
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animasi fade-in
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach((element, index) => {
+            setTimeout(() => {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        
+        updateTotalHarga(1);
+        updateCheckoutLink(1);
+    });
+
+
     const hargaPerUnit = JSON.parse('{{ obat.harga }}');
+    const stokObat = JSON.parse('{{ obat.stok }}');
 
 
     function updateTotalHarga(quantity) {
@@ -34,9 +191,13 @@
     function incrementQuantity() {
         const quantityInput = document.getElementById('quantity');
         let currentValue = parseInt(quantityInput.value) || 0;
-        quantityInput.value = currentValue + 1;
-        updateTotalHarga(currentValue + 1);
-        updateCheckoutLink(currentValue + 1);
+
+        // maksimal beli sebanyak sisa stok obat
+        if (currentValue + 1 <= stokObat) {
+            quantityInput.value = currentValue + 1;
+            updateTotalHarga(currentValue + 1);
+            updateCheckoutLink(currentValue + 1);
+        }
     }
 
     function decrementQuantity() {
@@ -56,9 +217,6 @@
         checkoutLink.href = updatedUrl;
     }
 
-    updateTotalHarga(1);
-    updateCheckoutLink(1);
+   
 </script>
-
 {% endblock %}
-

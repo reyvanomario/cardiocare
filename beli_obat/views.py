@@ -1,5 +1,6 @@
+from uuid import UUID
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 import psycopg2
 import os
@@ -9,6 +10,14 @@ from .models import Obat, TransaksiPembelianObat
 import jwt
 import requests
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+
+import pyotp
+from datetime import datetime, timedelta
+from django.utils.html import strip_tags
+
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+
 
 
 # views.py
@@ -204,13 +213,128 @@ def checkout_obat(request, obat_id, quantity):
     total_biaya = obat_dipilih.harga * quantity
     
     
-    new_transaksi = TransaksiPembelianObat.objects.create(
-        user_id=user['id'],
-        obat=obat_dipilih,
-        quantity=quantity,
-        total_biaya=total_biaya
+    request.session['pending_transaction'] = {
+        'obat_id': str(obat_id),
+        'quantity': quantity,
+        'total_biaya': total_biaya,
+    }
+
+    return HttpResponseRedirect(reverse('beli_obat:otp_view'))
+
+
+
+
+def otp_view(request):
+    token = request.COOKIES.get('jwt')
+
+    if token is None:
+        # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+
+        login_url = f"http://localhost:3000/login/"
+        return HttpResponseRedirect(login_url)
+
+    user, error = validate_jwt_and_get_user(token)
+
+    if error:
+        return error
+    
+    # Cek apakah ada transaksi pending
+    pending_transaction = request.session.get('pending_transaction')
+    if not pending_transaction:
+        return HttpResponseRedirect(reverse('beli_obat:katalog_obat'))
+    
+
+    obat_id = UUID(pending_transaction['obat_id'])
+
+    obat_dipilih = get_object_or_404(Obat, id=obat_id)
+
+    totp = pyotp.TOTP(pyotp.random_base32(), interval=60)
+    otp = totp.now()
+    request.session['otp_secret_key'] = totp.secret
+    valid_time = datetime.now() + timedelta(minutes=5)
+    request.session['otp_valid_time'] = str(valid_time)
+
+
+    subject = 'Kode OTP Anda'
+    html_message = render_to_string('otp_email.html', {
+        'otp': otp,
+        'username': user['username'],
+    })
+    plain_message = strip_tags(html_message)
+    
+    send_mail(
+        subject,
+        plain_message,
+        'settings.EMAIL_HOST_USER',  # Email pengirim
+        [user['email']],  # Email penerima
+        html_message=html_message,
     )
 
-    messages.success(request, 'Pembelian berhasil!')
+    context = {'obat': obat_dipilih} 
 
-    return HttpResponseRedirect(reverse('main:home'))
+    return render(request, 'otp.html', context)
+
+
+
+def verify_otp(request):
+    if request.method == 'POST':
+        token = request.COOKIES.get('jwt')
+
+        if token is None:
+            # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
+
+            login_url = f"http://localhost:3000/login/"
+            return HttpResponseRedirect(login_url)
+
+        user, error = validate_jwt_and_get_user(token)
+
+        if error:
+            return error
+        
+
+        user_otp = ''.join([
+            request.POST.get('otp1', ''),
+            request.POST.get('otp2', ''),
+            request.POST.get('otp3', ''),
+            request.POST.get('otp4', ''),
+            request.POST.get('otp5', ''),
+            request.POST.get('otp6', '')
+        ])
+
+        if len(user_otp) != 6:
+            messages.error(request, 'OTP harus 6 digit')
+            return redirect('beli_obat:otp_view')
+
+
+        pending_transaction = request.session.get('pending_transaction')
+        otp_secret = request.session.get('otp_secret_key')
+        otp_valid_time = datetime.fromisoformat(request.session.get('otp_valid_time'))
+
+        if datetime.now() > otp_valid_time:
+            messages.error(request, 'OTP telah kedaluwarsa.')
+            return HttpResponseRedirect(reverse('beli_obat:otp_view'))
+
+        totp = pyotp.TOTP(otp_secret, interval=60)
+        if totp.verify(user_otp, valid_window=1):
+            # Simpan transaksi ke database
+            obat_id = UUID(pending_transaction['obat_id'])
+            obat_dipilih = get_object_or_404(Obat, id=obat_id)
+            TransaksiPembelianObat.objects.create(
+                user_id=user['id'],
+                obat=obat_dipilih,
+                quantity=pending_transaction['quantity'],
+                total_biaya=pending_transaction['total_biaya']
+            )
+            # Hapus data session
+            del request.session['pending_transaction']
+            del request.session['otp_secret_key']
+            del request.session['otp_valid_time']
+            messages.success(request, 'Pembelian berhasil!')
+            return HttpResponseRedirect(reverse('main:home'))
+        else:
+            messages.error(request, 'OTP tidak valid.')
+            return HttpResponseRedirect(reverse('beli_obat:otp_view'))
+    return HttpResponseRedirect(reverse('beli_obat:otp_view'))
+
+
+
