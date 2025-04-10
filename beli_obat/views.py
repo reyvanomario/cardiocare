@@ -332,7 +332,7 @@ def verify_otp(request):
         ])
 
         if len(user_otp) != 6:
-            messages.error(request, 'OTP harus 6 digit')
+            messages.error(request, 'OTP harus 6 digit. Kode terbaru sudah dikirim.')
             return redirect('beli_obat:otp_view')
 
 
@@ -366,7 +366,7 @@ def verify_otp(request):
             messages.success(request, 'Pembelian berhasil!')
             return HttpResponseRedirect(reverse('main:home'))
         else:
-            messages.error(request, 'OTP tidak valid.')
+            messages.error(request, 'OTP tidak valid. Kode terbaru sudah dikirim.')
             return HttpResponseRedirect(reverse('beli_obat:otp_view'))
     return HttpResponseRedirect(reverse('beli_obat:otp_view'))
 
