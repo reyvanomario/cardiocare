@@ -16,3 +16,10 @@ variables:
   # App Variables, you can add your own variables here
   # App variables must have the prefix "PODS_"
   PODS_TEST: tests
+  PODS_KUBECONFIG: $KUBECONFIG
+  PODS_DB_HOST: $DB_HOST
+  PODS_DB_NAME: $DB_NAME
+  PODS_DB_PASSWORD: $DB_PASSWORD
+  PODS_DB_PORT: $DB_PORT
+  PODS_DB_USERNAME: $DB_USERNAME
+  PODS_DB_ENGINE: $DB_ENGINE
