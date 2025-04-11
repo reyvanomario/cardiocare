@@ -27,35 +27,12 @@ from .models import Obat
 from django.core.paginator import Paginator
 from django.contrib import messages
 
-def test_view(request):
-    con = psycopg2.connect(
-        host = os.getenv('DB_HOST'),
-        database = os.getenv('DB_NAME'),
-        user = os.getenv('DB_USER'),
-        password = os.getenv('DB_PASSWORD') 
-    )
 
-    cur = con.cursor()
-
-    # cur.execute("SELECT current_database();")
-    # current_db = cur.fetchone()[0]
-    # print("Connected to database:", current_db)
-
-    cur.execute("SELECT * FROM public.obat")
-
-    rows = cur.fetchall()
-
-    for r in rows:
-        print("nama obat: " + r[1])
-
-
-    con.close()
-
-    return HttpResponse("Data obat berhasil diambil.")
+AUTH_SERVICE_URL = "http://cardiocare-auth"
 
 def validate_jwt_and_get_user(token):
     try:
-        public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+        public_key_response = requests.get(f'{AUTH_SERVICE_URL}/api/get-public-key/')
         public_key_response.raise_for_status()
         public_key = public_key_response.json()['public_key']
 
@@ -77,7 +54,7 @@ def validate_jwt_and_get_user(token):
         # 3. Cek user 
         try:
             user_response = requests.get(
-                f'http://django-auth:8000/api/user/',
+                f'{AUTH_SERVICE_URL}/api/user/',
                 cookies={'jwt': token}
             )
             user_data = user_response.json()
@@ -210,7 +187,7 @@ def show_checkout_page(request, obat_id):
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
         next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
-        login_url = f"http://localhost:3000/login/?next={next_url}"
+        login_url = f"{AUTH_SERVICE_URL}/login/?next={next_url}"
         return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
