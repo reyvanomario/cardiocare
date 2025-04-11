@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 import csv
 from beli_obat.models import Obat
+from decimal import Decimal
 
 class Command(BaseCommand):
     help = 'Import data obat dari CSV'
@@ -16,4 +17,3 @@ class Command(BaseCommand):
                     aturan_pakai=row['aturan_pakai'],
                     stok=row['stok']
                 )
-        self.stdout.write(self.style.SUCCESS('Data obat berhasil diimport'))
