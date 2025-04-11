@@ -29,20 +29,28 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
  
 # Set the working directory
 WORKDIR /app
+
  
 # Copy application code
 COPY --chown=appuser:appuser . .
+
+
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
  
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
  
+
+
 # Switch to non-root user
 USER appuser
  
 # Expose the application port
 EXPOSE 8000 
  
-# Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "cardio_care.wsgi:application"]
+
+CMD ["/app/entrypoint.sh"]
 

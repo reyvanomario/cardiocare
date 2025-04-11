@@ -103,8 +103,6 @@ def import_csv_data():
                 stok=row['stok']
             )
 
-if __name__ == '__main__':
-    import_csv_data()
 
 
 def katalog_obat(request):
