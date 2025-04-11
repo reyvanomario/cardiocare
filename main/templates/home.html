@@ -1,0 +1,913 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CardioCarе - Solusi Komprehensif Kesehatan Jantung{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-red: #9e1a1a;
+        --secondary-red: #8c1616;
+        --dark-red: #7a0e0e;
+        --light-red: #f8e9e9;
+        --accent-gold: #d4af37;
+        --dark-text: #333;
+        --light-text: #f8f8f8;
+        --soft-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        --deep-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+
+    body {
+        font-family: 'Nunito', 'Inter', sans-serif;
+        color: var(--dark-text);
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    /* Enhanced Animations */
+    @keyframes heartBeat {
+        0% { transform: scale(1); }
+        15% { transform: scale(1.15); }
+        30% { transform: scale(1); }
+        45% { transform: scale(1.05); }
+        60% { transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* EKG Animation */
+    @keyframes ekgMove {
+        0% {
+            stroke-dashoffset: 1000;
+        }
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    /* Floating Animation */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    /* Pulse Glow Animation */
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 0 0 rgba(158, 26, 26, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(158, 26, 26, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(158, 26, 26, 0); }
+    }
+
+    /* Rotation Animation */
+    @keyframes rotation {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(359deg); }
+    }
+
+    /* Shine Effect Animation */
+    @keyframes shine {
+        0% { background-position: -100% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .heart-pulse {
+        animation: heartBeat 2s ease-in-out infinite;
+    }
+
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .fadeInLeft {
+        animation: fadeInLeft 0.8s ease-out forwards;
+    }
+
+    .fadeInRight {
+        animation: fadeInRight 0.8s ease-out forwards;
+    }
+
+    .pulse-glow {
+        animation: pulseGlow 2s infinite;
+    }
+
+    .delayed-animation {
+        opacity: 0;
+    }
+
+    /* Sticky Navigation */
+    .navbar-sticky {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: var(--primary-red);
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: var(--primary-red);
+        color: white;
+        position: relative;
+        overflow: hidden;
+        padding: 8rem 0;
+    }
+
+    /* EKG Line for Hero */
+    .ekg-container {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        overflow: hidden;
+    }
+
+    .ekg-line {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: ekgMove 10s linear infinite;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+    }
+
+    .hero-subtitle {
+        font-weight: 300;
+        letter-spacing: 1px;
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
+
+    .hero-title {
+        font-size: 4.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out forwards;
+        position: relative;
+    }
+
+    .hero-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Floating Icons in Hero */
+    .floating-icon {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.1);
+        z-index: 1;
+    }
+
+    .floating-icon-1 {
+        top: 20%;
+        left: 10%;
+        font-size: 3rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .floating-icon-2 {
+        top: 60%;
+        left: 15%;
+        font-size: 2rem;
+        animation: float 4s ease-in-out infinite 1s;
+    }
+
+    .floating-icon-3 {
+        top: 30%;
+        right: 15%;
+        font-size: 2.5rem;
+        animation: float 3.5s ease-in-out infinite 0.5s;
+    }
+
+    .floating-icon-4 {
+        bottom: 20%;
+        right: 10%;
+        font-size: 3.5rem;
+        animation: float 4.5s ease-in-out infinite 1.5s;
+    }
+
+    /* Enhanced Buttons */
+    .btn-hero {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transform: translateY(0);
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+    }
+
+    .btn-hero:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .btn-primary-custom {
+        background-color: #fff;
+        color: var(--primary-red);
+        border: none;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: var(--light-red);
+        color: var(--dark-red);
+    }
+
+    .btn-outline-custom {
+        background-color: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-outline-custom:hover {
+        background-color: white;
+        color: var(--primary-red);
+    }
+
+    /* Button with shine effect */
+    .btn-shine {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-shine::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.2) 50%, 
+            transparent 100%);
+        animation: shine 3s infinite;
+    }
+
+    /* Service Cards */
+    .service-card {
+        transition: all 0.4s ease;
+        box-shadow: var(--soft-shadow);
+        border: none;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+        background: white;
+        margin-bottom: 30px;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--deep-shadow);
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-red);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.5s ease;
+    }
+
+    .service-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .service-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        transition: all 0.5s ease;
+        border: 2px solid var(--primary-red);
+        position: relative;
+    }
+
+    .service-icon-wrapper::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border-radius: 50%;
+        border: 1px solid rgba(158, 26, 26, 0.3);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .service-card:hover .service-icon-wrapper {
+        background: var(--primary-red);
+        animation: pulseGlow 2s infinite;
+    }
+
+    .service-card:hover .service-icon-wrapper::after {
+        opacity: 1;
+        animation: rotation 10s linear infinite;
+    }
+
+    .service-icon {
+        color: var(--primary-red);
+        font-size: 2.2rem;
+        transition: all 0.5s ease;
+    }
+
+    .service-card:hover .service-icon {
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .service-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    .service-card:hover .service-title {
+        color: var(--primary-red);
+    }
+
+    /* Why Choose Section */
+    .why-choose-section {
+        background-color: var(--light-red);
+        position: relative;
+        overflow: hidden;
+        padding: 5rem 0;
+    }
+
+    .why-choose-item {
+        transition: all 0.4s ease;
+        background-color: white;
+        border-radius: 6px;
+        padding: 1.8rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-red);
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    .why-choose-item:hover {
+        transform: translateX(10px);
+        box-shadow: var(--soft-shadow);
+    }
+
+    .why-choose-icon {
+        color: var(--primary-red);
+        transition: all 0.4s ease;
+    }
+
+    .why-choose-item:hover .why-choose-icon {
+        transform: scale(1.1) rotate(10deg);
+    }
+
+    .why-choose-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--primary-red);
+    }
+
+    /* Latest Articles */
+    .article-card {
+        transition: all 0.4s ease;
+        box-shadow: var(--soft-shadow);
+        border: none;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .article-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--deep-shadow);
+    }
+
+    .article-header {
+        background: var(--primary-red);
+        color: white;
+        position: relative;
+        overflow: hidden;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .article-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.2) 50%, 
+            transparent 100%);
+        transition: all 0.5s ease;
+    }
+
+    .article-card:hover .article-header::before {
+        left: 100%;
+        transition: all 0.8s ease;
+    }
+
+    .article-icon {
+        font-size: 3rem;
+        transition: all 0.5s ease;
+    }
+
+    .article-card:hover .article-icon {
+        transform: scale(1.2) rotate(15deg);
+    }
+
+    .article-body {
+        padding: 2rem;
+    }
+
+    .article-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        transition: color 0.3s ease;
+        position: relative;
+        display: inline-block;
+    }
+
+    .article-title::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--primary-red);
+        transition: width 0.3s ease;
+    }
+
+    .article-card:hover .article-title {
+        color: var(--primary-red);
+    }
+
+    .article-card:hover .article-title::after {
+        width: 100%;
+    }
+
+    .btn-article {
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--primary-red);
+        border: 2px solid var(--primary-red);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-article:hover {
+        background: var(--primary-red);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-article::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.2) 50%, 
+            transparent 100%);
+        transition: left 0.5s ease;
+    }
+
+    .btn-article:hover::before {
+        left: 100%;
+        transition: left 0.5s ease;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: var(--primary-red);
+        color: white;
+        position: relative;
+        overflow: hidden;
+        padding: 5rem 0;
+    }
+
+    /* Floating elements in CTA */
+    .cta-float {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        z-index: 1;
+    }
+
+    .cta-float-1 {
+        width: 100px;
+        height: 100px;
+        top: 20%;
+        left: 10%;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .cta-float-2 {
+        width: 150px;
+        height: 150px;
+        bottom: 10%;
+        left: 20%;
+        animation: float 5s ease-in-out infinite 1s;
+    }
+
+    .cta-float-3 {
+        width: 80px;
+        height: 80px;
+        top: 40%;
+        right: 15%;
+        animation: float 3.5s ease-in-out infinite 0.5s;
+    }
+
+    .cta-float-4 {
+        width: 120px;
+        height: 120px;
+        bottom: 20%;
+        right: 10%;
+        animation: float 4.5s ease-in-out infinite 1.5s;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Section Titles */
+    .section-title {
+        position: relative;
+        margin-bottom: 3rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--primary-red);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+
+<!-- Hero Section with animations -->
+<div class="hero-section text-center">
+    <!-- Floating Icons -->
+    <div class="floating-icon floating-icon-1"><i class="bi bi-heart"></i></div>
+    <div class="floating-icon floating-icon-2"><i class="bi bi-capsule"></i></div>
+    <div class="floating-icon floating-icon-3"><i class="bi bi-clipboard-pulse"></i></div>
+    <div class="floating-icon floating-icon-4"><i class="bi bi-hospital"></i></div>
+    
+    <div class="container position-relative hero-content">
+        <h1 class="hero-title heart-pulse">CardioCarе</h1>
+        <p class="lead mb-5 hero-subtitle">Solusi Komprehensif untuk Kesehatan Jantung Anda</p>
+        <div class="d-flex justify-content-center gap-4">
+            <a href="{% url 'beli_obat:katalog_obat' %}" class="btn btn-hero btn-primary-custom btn-shine">
+                <i class="bi bi-cart-plus me-2"></i>Beli Obat
+            </a>
+            <a href="#" class="btn btn-hero btn-outline-custom">
+                <i class="bi bi-calendar-check me-2"></i>Konsultasi
+            </a>
+        </div>
+    </div>
+    
+    <!-- EKG Line Animation -->
+    <div class="ekg-container">
+        <svg width="100%" height="100%" viewBox="0 0 1200 100" preserveAspectRatio="none">
+            <path class="ekg-line" d="M0,50 L120,50 L140,50 L160,20 L180,80 L200,0 L220,100 L240,50 L340,50 L360,50 L380,20 L400,80 L420,0 L440,100 L460,50 L560,50 L580,50 L600,20 L620,80 L640,0 L660,100 L680,50 L780,50 L800,50 L820,20 L840,80 L860,0 L880,100 L900,50 L1000,50 L1020,50 L1040,20 L1060,80 L1080,0 L1100,100 L1120,50 L1200,50" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+        </svg>
+    </div>
+</div>
+
+<!-- Layanan Utama dengan animasi -->
+<div class="container py-5 mt-4">
+    <h2 class="section-title">Layanan Kami</h2>
+    <div class="row">
+        <!-- Pembelian Obat -->
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 delayed-animation">
+                <div class="service-icon-wrapper mb-3">
+                    <i class="bi bi-capsule service-icon"></i>
+                </div>
+                <h3 class="service-title h4">Pembelian Obat</h3>
+                <p class="text-muted mb-4">Obat kardiovaskular berkualitas dengan informasi lengkap tentang dosis dan aturan pakai.</p>
+                <a href="{% url 'beli_obat:katalog_obat' %}" class="btn btn-article mt-auto">Lihat Katalog</a>
+            </div>
+        </div>
+        
+        <!-- Janji Konsultasi -->
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 delayed-animation">
+                <div class="service-icon-wrapper mb-3">
+                    <i class="bi bi-calendar-check service-icon"></i>
+                </div>
+                <h3 class="service-title h4">Janji Konsultasi</h3>
+                <p class="text-muted mb-4">Konsultasi online dengan dokter spesialis jantung terbaik secara cepat dan mudah.</p>
+                <a href="#" class="btn btn-article mt-auto">Buat Janji</a>
+            </div>
+        </div>
+        
+        <!-- Artikel Kesehatan -->
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 delayed-animation">
+                <div class="service-icon-wrapper mb-3">
+                    <i class="bi bi-journal-text service-icon"></i>
+                </div>
+                <h3 class="service-title h4">Artikel Kesehatan</h3>
+                <p class="text-muted mb-4">Informasi terkini tentang kesehatan jantung, pencegahan, dan gaya hidup sehat.</p>
+                <a href="#" class="btn btn-article mt-auto">Baca Artikel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mengapa Memilih CardioCarе -->
+<div class="why-choose-section py-5 mt-5">
+    <div class="container py-4">
+        <h2 class="section-title">Mengapa Memilih CardioCarе?</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="why-choose-item d-flex align-items-center delayed-animation">
+                    <div class="why-choose-icon me-4">
+                        <i class="bi bi-heart-pulse" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="why-choose-title">Fokus Kesehatan Jantung</h4>
+                        <p class="text-muted mb-0">Layanan terpadu untuk pencegahan dan penanganan masalah kardiovaskular.</p>
+                    </div>
+                </div>
+                <div class="why-choose-item d-flex align-items-center delayed-animation">
+                    <div class="why-choose-icon me-4">
+                        <i class="bi bi-hospital" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="why-choose-title">Dokter Spesialis Terbaik</h4>
+                        <p class="text-muted mb-0">Konsultasi mudah dengan spesialis jantung berpengalaman.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="why-choose-item d-flex align-items-center delayed-animation">
+                    <div class="why-choose-icon me-4">
+                        <i class="bi bi-shield-check" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="why-choose-title">Obat Berkualitas</h4>
+                        <p class="text-muted mb-0">Obat kardiovaskular terpercaya dengan informasi lengkap.</p>
+                    </div>
+                </div>
+                <div class="why-choose-item d-flex align-items-center delayed-animation">
+                    <div class="why-choose-icon me-4">
+                        <i class="bi bi-book" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="why-choose-title">Informasi Edukatif</h4>
+                        <p class="text-muted mb-0">Artikel kesehatan berkualitas untuk pengetahuan mendalam.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Artikel Terbaru -->
+<div class="container py-5 mt-4">
+    <h2 class="section-title">Artikel Kesehatan Terbaru</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="article-card h-100 delayed-animation">
+                <div class="article-header">
+                    <i class="bi bi-heart article-icon"></i>
+                </div>
+                <div class="article-body">
+                    <h5 class="article-title">Tips Menjaga Kesehatan Jantung</h5>
+                    <p class="card-text text-muted mb-4">Pelajari cara menjaga kesehatan jantung melalui pola makan dan aktivitas fisik yang tepat.</p>
+                    <a href="#" class="btn btn-article">Baca Selengkapnya</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="article-card h-100 delayed-animation">
+                <div class="article-header">
+                    <i class="bi bi-clipboard2-pulse article-icon"></i>
+                </div>
+                <div class="article-body">
+                    <h5 class="article-title">Mengenal Gejala Serangan Jantung</h5>
+                    <p class="card-text text-muted mb-4">Kenali tanda-tanda serangan jantung dan langkah pertolongan pertama yang bisa menyelamatkan nyawa.</p>
+                    <a href="#" class="btn btn-article">Baca Selengkapnya</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="article-card h-100 delayed-animation">
+                <div class="article-header">
+                    <i class="bi bi-basket article-icon"></i>
+                </div>
+                <div class="article-body">
+                    <h5 class="article-title">Makanan untuk Jantung Sehat</h5>
+                    <p class="card-text text-muted mb-4">Daftar makanan yang baik untuk kesehatan jantung dan yang perlu dihindari untuk mencegah penyakit kardiovaskular.</p>
+                    <a href="#" class="btn btn-article">Baca Selengkapnya</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-5">
+        <a href="#" class="btn btn-hero btn-shine" style="background: var(--primary-red); color: white;">Lihat Semua Artikel</a>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section py-5 text-center mt-5">
+    <!-- Floating elements -->
+    <div class="cta-float cta-float-1"></div>
+    <div class="cta-float cta-float-2"></div>
+    <div class="cta-float cta-float-3"></div>
+    <div class="cta-float cta-float-4"></div>
+    
+    <div class="container cta-content">
+        <h2 class="display-4 mb-4 text-white">Jaga Kesehatan Jantung Anda</h2>
+        <p class="lead mb-5 text-white-50">CardioCarе - Mitra Kesehatan Jantung Terpercaya</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'beli_obat:katalog_obat' %}" class="btn btn-hero btn-primary-custom btn-shine">
+                <i class="bi bi-cart-plus me-2"></i>Beli Obat
+            </a>
+            <a href="#" class="btn btn-hero btn-outline-custom">
+                <i class="bi bi-calendar-check me-2"></i>Konsultasi
+            </a>
+        </div>
+    </div>
+    
+    <!-- EKG Line Animation -->
+    <div class="ekg-container">
+        <svg width="100%" height="100%" viewBox="0 0 1200 100" preserveAspectRatio="none">
+            <path class="ekg-line" d="M0,50 L120,50 L140,50 L160,20 L180,80 L200,0 L220,100 L240,50 L340,50 L360,50 L380,20 L400,80 L420,0 L440,100 L460,50 L560,50 L580,50 L600,20 L620,80 L640,0 L660,100 L680,50 L780,50 L800,50 L820,20 L840,80 L860,0 L880,100 L900,50 L1000,50 L1020,50 L1040,20 L1060,80 L1080,0 L1100,100 L1120,50 L1200,50" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+        </svg>
+    </div>
+</div>
+
+<!-- JavaScript untuk Animasi dan Interaktivitas -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sticky Navigation
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                nav.classList.add('navbar-sticky');
+            } else {
+                nav.classList.remove('navbar-sticky');
+            }
+        });
+
+        // Animasi saat scroll untuk elemen dengan delayed-animation
+        const animateElements = function() {
+            const serviceCards = document.querySelectorAll('.service-card.delayed-animation');
+            const whyChooseItems = document.querySelectorAll('.why-choose-item.delayed-animation');
+            const articleCards = document.querySelectorAll('.article-card.delayed-animation');
+            
+            // Fungsi untuk mengecek posisi elemen terhadap viewport
+            const isInViewport = function(element) {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8
+                );
+            };
+            
+            // Animasi service cards
+            serviceCards.forEach(function(card, index) {
+                if (isInViewport(card)) {
+                    setTimeout(function() {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 150); // Delay berdasarkan index
+                }
+            });
+            
+            // Animasi why choose items
+            whyChooseItems.forEach(function(item, index) {
+                if (isInViewport(item)) {
+                    setTimeout(function() {
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateX(0)';
+                    }, index * 150); // Delay berdasarkan index
+                }
+            });
+            
+            // Animasi article cards
+            articleCards.forEach(function(card, index) {
+                if (isInViewport(card)) {
+                    setTimeout(function() {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 150); // Delay berdasarkan index
+                }
+            });
+        };
+        
+        // Run animation check on scroll
+        window.addEventListener('scroll', animateElements);
+        // Run once on load
+        animateElements();
+    });
+
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+        alert.style.transition = 'opacity 0.5s ease-out';
+        alert.style.opacity = '0';
+        setTimeout(() => {
+            alert.remove();
+        }, 500); 
+        });
+    }, 5000);
+</script>
+{% endblock %}

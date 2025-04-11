@@ -89,7 +89,7 @@ DATABASES = {
              os.getenv('DB_ENGINE', 'sqlite3')
          ),
          'NAME': os.getenv('DB_NAME', 'polls'),
-         'USER': os.getenv('DB_USERNAME'),
+         'USER': os.getenv('DB_USER'),
          'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
          'HOST': os.getenv('DB_HOST', '127.0.0.1'),
          'PORT': os.getenv('DB_PORT', 5432),
@@ -138,3 +138,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'cardiocare2025@gmail.com'  # Email pengirim
+EMAIL_HOST_PASSWORD = 'pibzpdhseabvcbmb'  

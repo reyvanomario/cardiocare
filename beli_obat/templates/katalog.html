@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Katalog Obat - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-red: #9e1a1a;
+        --secondary-red: #8c1616;
+        --dark-red: #7a0e0e;
+        --light-red: #f8e9e9;
+        --accent-gold: #d4af37;
+        --dark-text: #333;
+        --light-text: #f8f8f8;
+        --soft-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        position: relative;
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-red);
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--primary-red);
+        border-radius: 2px;
+    }
+
+    /* Card styling */
+    .medicine-card {
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .medicine-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--soft-shadow);
+    }
+
+    .medicine-icon {
+        background: var(--primary-red);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .medicine-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%);
+    }
+
+    .medicine-letter {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        position: relative;
+    }
+
+    .medicine-icon-bg {
+        position: absolute;
+        opacity: 0.1;
+        font-size: 5rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .medicine-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .medicine-title {
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .medicine-price {
+        color: var(--primary-red);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .medicine-desc {
+        color: #6c757d;
+        font-size: 0.9rem;
+        flex-grow: 1;
+    }
+
+    .btn-detail {
+        background: transparent;
+        color: var(--primary-red);
+        border: 1px solid var(--primary-red);
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .btn-detail:hover {
+        background: var(--light-red);
+        color: var(--dark-red);
+        border-color: var(--dark-red);
+    }
+
+    .btn-cart {
+        background: var(--primary-red);
+        border: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .btn-cart:hover {
+        background: var(--dark-red);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.2);
+    }
+
+    .btn-cart:active {
+        transform: translateY(0);
+    }
+
+    .btn-out-of-stock {
+        background: #6c757d;
+        border: none;
+        font-weight: 600;
+    }
+
+    /* Search & Filter Section */
+    .search-filter-section {
+        background: var(--light-red);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .filter-label {
+        font-weight: 700;
+        color: var(--dark-red);
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-input {
+        border: 1px solid rgba(158, 26, 26, 0.2);
+        border-radius: 4px;
+    }
+
+    .filter-input:focus {
+        border-color: var(--primary-red);
+        box-shadow: 0 0 0 0.2rem rgba(158, 26, 26, 0.25);
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        background: var(--light-red);
+        border-radius: 8px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: var(--primary-red);
+        margin-bottom: 1rem;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-card {
+        animation: fadeIn 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+    .animate-delay-4 { animation-delay: 0.4s; }
+
+    /* Pagination styling */
+    .pagination .page-link {
+        color: var(--primary-red);
+        border-color: rgba(158, 26, 26, 0.2);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-red);
+        border-color: var(--primary-red);
+        color: white;
+    }
+
+    .pagination .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(158, 26, 26, 0.25);
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--light-red);
+        color: var(--dark-red);
+    }
+    /* Button Container Styling */
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem; /* Space between buttons */
+        width: 100%; /* Full width of the container */
+    }
+
+    .button-container .btn {
+        flex: 0 1 auto; /* Allow buttons to size based on content */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* If you want buttons to be equal width */
+    .button-container .btn-equal-width {
+        flex: 1;
+        max-width: 250px; /* Optional: set a max width */
+    }
+
+    
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center page-title">Katalog Obat Kardiovaskular</h2>
+    
+    <!-- Search & Filter Section -->
+    <div class="search-filter-section">
+        <form action="{% url 'beli_obat:katalog_obat' %}" method="get" id="filterForm">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label for="searchInput" class="filter-label">Cari Obat</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control filter-input" id="searchInput" name="q" 
+                               placeholder="Masukkan nama obat..." 
+                               value="{{ current_query|default:'' }}">
+                        <button class="btn btn-primary" type="submit" style="background-color: var(--primary-red); border-color: var(--primary-red);">
+                            Cari
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="sortSelect" class="filter-label">Urutkan</label>
+                    <select class="form-select filter-input" id="sortSelect" name="sort">
+                        <option value="name-asc" {% if current_sort == 'name-asc' %}selected{% endif %}>Nama (A-Z)</option>
+                        <option value="name-desc" {% if current_sort == 'name-desc' %}selected{% endif %}>Nama (Z-A)</option>
+                        <option value="price-asc" {% if current_sort == 'price-asc' %}selected{% endif %}>Harga (Rendah-Tinggi)</option>
+                        <option value="price-desc" {% if current_sort == 'price-desc' %}selected{% endif %}>Harga (Tinggi-Rendah)</option>
+                    </select>
+                </div>
+            </div>
+            
+            {% if request.GET.page %}
+                <input type="hidden" name="page" value="{{ request.GET.page }}">
+            {% endif %}
+        </form>
+    </div>
+    <div class="row">
+        {% for obat in obat_list %}
+        <div class="col-md-3 col-sm-6 mb-4 animate-card animate-delay-{{ forloop.counter|divisibleby:4|yesno:'4,forloop.counter|divisibleby:3|yesno:\'3,forloop.counter|divisibleby:2|yesno:\\\'2,1\\\'\'' }}">
+            <div class="medicine-card">
+                <!-- Icon yang menarik -->
+                <div class="medicine-icon">
+                    <h3 class="medicine-letter">{{ obat.nama_obat|slice:":1" }}</h3>
+                    {% if 'anti' in obat.nama_obat.lower %}
+                        <i class="bi bi-shield-plus medicine-icon-bg"></i>
+                    {% elif 'cardiac' in obat.nama_obat.lower or 'cardio' in obat.nama_obat.lower %}
+                        <i class="bi bi-heart-pulse medicine-icon-bg"></i>
+                    {% elif 'vitamin' in obat.nama_obat.lower %}
+                        <i class="bi bi-droplet medicine-icon-bg"></i>
+                    {% else %}
+                        <i class="bi bi-capsule medicine-icon-bg"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="medicine-card-body">
+                    <h5 class="medicine-title">{{ obat.nama_obat }}</h5>
+                    <p class="medicine-price">Rp {{ obat.harga|floatformat:0|stringformat:"s"|slice:":-3" }}.{{ obat.harga|floatformat:0|stringformat:"s"|slice:"-3:" }}</p>
+                    <p class="medicine-desc">{{ obat.deskripsi|truncatechars:100 }}</p>
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'beli_obat:detail_obat' obat.id %}" class="btn btn-detail btn-sm w-100">
+                            <i class="bi bi-info-circle me-1"></i> Detail Obat
+                        </a>
+                        {% if obat.stok > 0 %}
+                        <a href="{% url 'beli_obat:checkout-page' obat.id%}">
+                            <button class="btn btn-cart btn-sm w-100 text-white">
+                                <i class="bi bi-cart-plus me-1"></i> Beli Obat
+                            </button>
+                        </a>
+                        {% else %}
+                        <button class="btn btn-out-of-stock btn-sm w-100 text-white" disabled>
+                            <i class="bi bi-x-circle me-1"></i> Stok Habis
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="bi bi-capsule empty-icon"></i>
+                <h4>Tidak ada obat yang tersedia</h4>
+                <p class="text-muted">
+                    {% if current_query %}
+                        Tidak ada obat yang sesuai dengan kata kunci "{{ current_query }}". Silakan coba dengan kata kunci lain.
+                    {% else %}
+                        Saat ini tidak ada produk yang tersedia dalam katalog kami. Silakan coba lagi nanti.
+                    {% endif %}
+                </p>
+                {% if current_query %}
+                    <a href="{% url 'beli_obat:katalog_obat' %}" class="btn btn-outline-primary mt-3">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Pencarian
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if obat_list.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if obat_list.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if current_query %}&q={{ current_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ obat_list.previous_page_number }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                </li>
+            {% endif %}
+            
+            {% for num in obat_list.paginator.page_range %}
+                {% if obat_list.number == num %}
+                    <li class="page-item active">
+                        <a class="page-link" href="#">{{ num }}</a>
+                    </li>
+                {% elif num > obat_list.number|add:'-3' and num < obat_list.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if obat_list.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ obat_list.next_page_number }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ obat_list.paginator.num_pages }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sort select - submit on change
+        const sortSelect = document.getElementById('sortSelect');
+        sortSelect.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+        
+        // Animation on scroll
+        const animateOnScroll = function() {
+            const cards = document.querySelectorAll('.animate-card');
+            cards.forEach(card => {
+                const cardPosition = card.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (cardPosition < screenPosition) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        };
+        
+        // Run on load and scroll
+        animateOnScroll();
+        window.addEventListener('scroll', animateOnScroll);
+    });
+</script>
+{% endblock %}

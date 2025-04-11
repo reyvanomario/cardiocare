@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verifikasi OTP - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    .otp-section {
+        padding: 2rem 0;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .otp-card {
+        background: var(--light-red);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: var(--soft-shadow);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .otp-title {
+        font-size: 1.8rem;
+        color: var(--dark-text);
+        margin-bottom: 1.5rem;
+    }
+
+    .otp-instruction {
+        color: var(--dark-text);
+        margin-bottom: 2rem;
+    }
+
+    .otp-inputs {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 1.2rem;
+        border: 2px solid var(--primary-red);
+        border-radius: 8px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .otp-input:focus {
+        border-color: var(--dark-red);
+        box-shadow: 0 0 8px rgba(158, 26, 26, 0.2);
+        outline: none;
+    }
+
+    .verify-button {
+        padding: 0.8rem 3rem;
+        font-size: 1.1rem;
+        background: var(--primary-red);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .verify-button:hover {
+        background: var(--dark-red);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.2);
+    }
+
+    .resend-text {
+        margin-top: 1.5rem;
+        color: var(--dark-text);
+    }
+
+    .resend-link {
+        color: var(--primary-red);
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .resend-link:hover {
+        color: var(--dark-red);
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:katalog_obat' %}">Katalog Obat</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:detail_obat' obat.id %}">{{ obat.nama_obat }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:checkout-page' obat.id %}">Checkout</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Verifikasi OTP</li>
+        </ol>
+    </nav>
+
+    <div class="otp-section fade-in">
+        <div class="otp-card">
+            <h1 class="product-title">Verifikasi OTP</h1>
+            <p class="otp-instruction">Masukkan 6 digit kode OTP yang telah dikirim ke email Anda {{ user_email }}</p>
+            
+            <form id="otpForm" method="post" action="{% url 'beli_obat:verify_otp' %}">
+                {% csrf_token %}
+                <div class="otp-inputs">
+                    <input type="number" class="otp-input" name="otp1" maxlength="1" required>
+                    <input type="number" class="otp-input" name="otp2" maxlength="1" required>
+                    <input type="number" class="otp-input" name="otp3" maxlength="1" required>
+                    <input type="number" class="otp-input" name="otp4" maxlength="1" required>
+                    <input type="number" class="otp-input" name="otp5" maxlength="1" required>
+                    <input type="number" class="otp-input" name="otp6" maxlength="1" required>
+                </div>
+
+                <button type="submit" class="verify-button pulse-animation">
+                    <i class="bi bi-shield-check me-2"></i>Verifikasi
+                </button>
+            </form>
+
+            <p class="resend-text">
+                Tidak menerima kode?
+                <a href="#" class="resend-link">Kirim Ulang OTP</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const otpInputs = document.querySelectorAll('.otp-input');
+        
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && index > 0 && !e.target.value) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

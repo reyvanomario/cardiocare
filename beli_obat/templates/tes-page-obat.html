@@ -1,0 +1,39 @@
+{% extends 'base.html' %} 
+{% block content %}
+<button onclick="handleLogout()" style="padding: 8px 16px; background-color: #e53e3e; color: white;">
+  Logout
+</button>
+
+<h1>Username: {{ user_data.username }}</h1>
+
+{% for obat in list_obat %}
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <h2 style="margin: 0 10px 0 0;">{{ obat.nama_obat }}</h2>
+    <h2>Harga: {{ obat.harga }}</h2>
+    <button type="button">Beli</button>
+</div>
+
+
+{% endfor %}
+
+
+<script>
+    async function handleLogout() {
+      try {
+        const response = await fetch('http://cardiocare-auth/api/logout/', {
+          method: 'POST',
+          credentials: 'include'  // mengirim cookie buat dihapus
+        });
+  
+        if (response.ok) {
+          window.location.href = "http://cardiocare-auth/login/";  
+        } else {
+          alert("Logout gagal!");
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+</script>
+
+{% endblock %}
