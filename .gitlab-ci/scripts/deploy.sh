@@ -49,6 +49,7 @@ yq e '.spec.template.spec.containers[0].env += load("env.yaml")' -i deployment.y
 
 kubectl apply -f deployment.yaml --kubeconfig ./kubeconfig
 
+
 echo "Deployment done"
 
 # Service
