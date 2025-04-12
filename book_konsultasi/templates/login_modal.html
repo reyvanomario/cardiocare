@@ -1,0 +1,605 @@
+<!-- Login Modal -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+        
+        <div class="modal-header">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,2c-5.5,0-10,4.5-10,10c0,5.5,4.5,10,10,10s10-4.5,10-10C22,6.5,17.5,2,12,2z M12,5c1.7,0,3,1.3,3,3s-1.3,3-3,3 S9,9.7,9,8S10.3,5,12,5z M12,19c-2.5,0-4.7-1.3-6-3.2c0-2,4-3.1,6-3.1s6,1.1,6,3.1C16.7,17.7,14.5,19,12,19z"/>
+                </svg>
+            </div>
+            <h3>Masuk ke Akun</h3>
+        </div>
+        
+        <div class="modal-body">
+            <p>Masukkan username/email dan password untuk masuk.</p>
+            
+            <form id="loginForm">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Username atau Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+                </div>
+                
+                <div id="loginError" class="error-message"></div>
+                
+                <button type="submit" class="btn-submit" id="loginButton">Masuk</button>
+                <input type="hidden" name="next" value="{{ request.path }}">
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <p>
+                Belum mempunyai akun?
+                <form id="registerRedirectForm" method="post" action="http://localhost:8001/api/register/" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="link register-link">Buat akun</button>
+                </form>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- OTP Verification Modal -->
+<div id="otpModal" class="modal">
+    <div class="modal-content">
+        <button class="btn-close" onclick="closeOtpModal()">&times;</button>
+        
+        <div class="modal-header">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18,8H17V6c0-2.76-2.24-5-5-5S7,3.24,7,6v2H6c-1.1,0-2,0.9-2,2v10c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V10 C20,8.9,19.1,8,18,8z M9,6c0-1.66,1.34-3,3-3s3,1.34,3,3v2H9V6z M18,20H6V10h12V20z M12,17c1.1,0,2-0.9,2-2c0-1.1-0.9-2-2-2 c-1.1,0-2,0.9-2,2C10,16.1,10.9,17,12,17z"/>
+                </svg>
+            </div>
+            <h3>Verifikasi OTP</h3>
+        </div>
+        
+        <div class="modal-body">
+            <p class="otp-instruction">Masukkan 6 digit kode OTP yang telah dikirim ke email Anda</p>
+            <p class="user-email-display"></p>
+            
+            <form id="otpVerifyForm">
+                {% csrf_token %}
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" name="otp1" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" name="otp2" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" name="otp3" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" name="otp4" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" name="otp5" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" name="otp6" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="hidden" id="userEmailHidden" name="email">
+                    <input type="hidden" id="usernameHidden" name="username">
+                    <input type="hidden" id="passwordHidden" name="password">
+                </div>
+
+                <button type="submit" class="verify-button">
+                    <i class="bi bi-shield-check me-2"></i>Verifikasi
+                </button>
+            </form>
+
+            <p class="resend-text">
+                Tidak menerima kode?
+                <a href="#" class="resend-link" id="resendOtp">Kirim Ulang OTP</a>
+            </p>
+            
+            <div id="otpTimer" class="otp-timer">
+                Kirim ulang dalam <span id="timerCounter">60</span> detik
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal Base Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        width: 100%;
+        max-width: 460px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        padding: 2rem;
+        text-align: center;
+        transform: translateY(-20px);
+        opacity: 0;
+        animation: slideUp 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal Header */
+    .modal-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-icon {
+        width: 80px;
+        height: 80px;
+        background-color: var(--primary-red, #9e1a1a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.15);
+    }
+
+    .modal-icon svg {
+        width: 40px;
+        height: 40px;
+        fill: white;
+    }
+
+    .modal-header h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    /* Modal Body */
+    .modal-body {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-body p {
+        color: #666;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    /* Input Group */
+    .input-group {
+        display: flex;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        transition: border-color 0.3s;
+    }
+
+    .input-group:focus-within {
+        border-color: var(--primary-red, #9e1a1a);
+        box-shadow: 0 0 0 2px rgba(158, 26, 26, 0.1);
+    }
+
+    .form-control {
+        flex: 1;
+        border: none;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        outline: none;
+    }
+
+    /* Button */
+    .btn-submit {
+        width: 100%;
+        padding: 0.85rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--primary-red, #9e1a1a);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--dark-red, #7a0e0e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(158, 26, 26, 0.25);
+    }
+
+    /* Footer */
+    .modal-footer {
+        margin-top: 1.5rem;
+    }
+
+    .modal-footer p {
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.5;
+    }
+
+    .modal-footer .link {
+        color: var(--primary-red, #9e1a1a);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* Close Button */
+    .btn-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #999;
+    }
+
+    /* OTP Styles */
+    .otp-inputs {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        border: 2px solid rgba(158, 26, 26, 0.3);
+        border-radius: 8px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .otp-input:focus {
+        border-color: var(--primary-red, #9e1a1a);
+        box-shadow: 0 0 0 3px rgba(158, 26, 26, 0.15);
+        outline: none;
+    }
+
+    .verify-button {
+        width: 100%;
+        padding: 0.85rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--primary-red, #9e1a1a);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .verify-button:hover {
+        background-color: var(--dark-red, #7a0e0e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(158, 26, 26, 0.25);
+    }
+
+    .register-link {
+        color: var(--primary-red, #9e1a1a);
+        text-decoration: none;
+        font-weight: 500;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-size: inherit;
+    }
+
+    .register-link:hover {
+        text-decoration: underline;
+    }
+
+    .resend-text {
+        margin-top: 1.5rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .resend-link {
+        color: var(--primary-red, #9e1a1a);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .resend-link:hover {
+        color: var(--dark-red, #7a0e0e);
+        text-decoration: underline;
+    }
+    
+    .otp-timer {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .user-email-display {
+        font-weight: 600;
+        color: var(--primary-red, #9e1a1a);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Error states */
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+        text-align: left;
+        display: none;
+    }
+    
+    @media (max-width: 576px) {
+        .modal-content {
+            margin: 0 1rem;
+        }
+        
+        .otp-input {
+            width: 40px;
+            height: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .otp-inputs {
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        const otpVerifyForm = document.getElementById('otpVerifyForm');
+        const loginError = document.getElementById('loginError');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                loginError.textContent = 'Username dan password wajib diisi!';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            fetch('http://localhost:8001/api/login-otp/', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ 
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.require_otp) {
+                    document.getElementById('loginModal').classList.remove('active');
+                    document.getElementById('otpModal').classList.add('active');
+                    document.getElementById('userEmailHidden').value = username.includes('@') ? username : '';
+                    document.getElementById('usernameHidden').value = username;
+                    document.getElementById('passwordHidden').value = password;
+                    document.querySelector('.user-email-display').textContent = username;
+                    document.querySelector('.otp-input').focus();
+                    startOtpTimer();
+                } else if (data.success) {
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    loginError.textContent = data.error || data.message || 'Username atau password salah.';
+                    loginError.style.display = 'block';
+                    
+                    if (data.remaining_attempts !== undefined) {
+                        loginError.textContent += ` Percobaan tersisa: ${data.remaining_attempts}`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loginError.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                loginError.style.display = 'block';
+            });
+        });
+        const otpInputs = document.querySelectorAll('.otp-input');
+        
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('keypress', function(e) {
+                if (isNaN(e.key) || e.key === ' ') {
+                    e.preventDefault();
+                }
+            });
+            
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = e.clipboardData.getData('text');
+                if (!/^\d+$/.test(pastedText)) return;
+                
+                for (let i = 0; i < pastedText.length && i + index < otpInputs.length; i++) {
+                    otpInputs[i + index].value = pastedText[i];
+                    if (i + index < otpInputs.length - 1) {
+                        otpInputs[i + index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('input', function(e) {
+                if (e.target.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    } else {
+                        let allFilled = true;
+                        otpInputs.forEach(input => {
+                            if (!input.value) allFilled = false;
+                        });
+                        
+                        if (allFilled) {
+                            // Auto submit when all fields are filled
+                            document.querySelector('.verify-button').focus();
+                        }
+                    }
+                }
+            });
+            
+            // Backspace handling
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        otpVerifyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            const username = document.getElementById('usernameHidden').value;
+            const password = document.getElementById('passwordHidden').value;
+            
+            if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+                alert('Masukkan OTP 6 digit yang valid');
+                return;
+            }
+            
+            fetch('http://localhost:8001/api/login-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ 
+                    username: username,
+                    password: password,
+                    otp: otp
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('otpModal').classList.remove('active');
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    alert(data.message || 'OTP tidak valid. Silakan coba lagi.');
+                    
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
+        });
+        const resendLink = document.getElementById('resendOtp');
+        const otpTimer = document.getElementById('otpTimer');
+        const timerCounter = document.getElementById('timerCounter');
+        let timerInterval;
+        
+        function startOtpTimer() {
+            let seconds = 60;
+            resendLink.style.display = 'none';
+            otpTimer.style.display = 'block';
+            timerCounter.textContent = seconds;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                seconds--;
+                timerCounter.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    resendLink.style.display = 'inline';
+                    otpTimer.style.display = 'none';
+                }
+            }, 1000);
+        }
+        
+        resendLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('usernameHidden').value;
+            const password = document.getElementById('passwordHidden').value;
+            fetch('http://localhost:8001/api/login-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ 
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.require_otp) {
+                    startOtpTimer();
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                } else {
+                    alert(data.message || 'Gagal mengirim ulang OTP. Silakan coba lagi.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
+        });
+
+        window.openLoginModal = function() {
+            document.getElementById('loginModal').classList.add('active');
+            setTimeout(() => document.getElementById('username').focus(), 300);
+            loginError.style.display = 'none';
+        };
+        
+        window.closeModal = function() {
+            document.getElementById('loginModal').classList.remove('active');
+            loginForm.reset();
+            loginError.style.display = 'none';
+        };
+        
+        window.closeOtpModal = function() {
+            document.getElementById('otpModal').classList.remove('active');
+            otpVerifyForm.reset();
+            clearInterval(timerInterval);
+        };
+    });
+</script>

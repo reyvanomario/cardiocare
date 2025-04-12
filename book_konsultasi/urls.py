@@ -1,0 +1,11 @@
+from django.urls import path
+from .views import list_rumah_sakit, view_dokter, list_dokter, BookKonsultasiView
+
+app_name = 'book_konsultasi'
+
+urlpatterns = [
+    path('', list_rumah_sakit, name='list_rumah_sakit'),
+    path('<uuid:id_dokter>/', view_dokter, name='view_dokter'),
+    path('list-dokter/<uuid:id_rumah_sakit>/', list_dokter, name='list_dokter'),
+    path('book-konsultasi/<uuid:id_jadwal>/', BookKonsultasiView.as_view(), name='book_konsultasi'),
+]

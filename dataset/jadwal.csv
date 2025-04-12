@@ -1,0 +1,31 @@
+nama_dokter,hari,jam,kuota
+"dr. Adrian Pratama, Sp.JP(K)",Senin,"09.30 - 12.00",10
+"dr. Fadillah Ramadhan, Sp.JP",Kamis,"11.00 - 15.00",15
+"dr. Silvia Mahendra, Sp.JP(K), FIHA",Rabu,"18.30 - 21.30",15
+"dr. Hendrik Wijaya, Sp.JP, FACC",Sabtu,"08.00 - 10.00",8
+"dr. Laksmi Dewanti, Sp.JP, FIHA, FESC",Minggu,"10.00 - 14.30",11
+"dr. Rizky Alamsyah, Sp.JP(K), FAsCC",Senin,"11.00 - 12.30",10
+"dr. Nathania Surya, Sp.JP, FESC, FSCAI",Kamis,"16.30 - 20.00",12
+"dr. Yudha Perdana, Sp.JP(K), FACC, FIHA",Selasa,"13.00 - 16.00",14
+"dr. Arief Nugroho, Sp.JP, FIHA, FAPSIC",Rabu,"14.00 - 17.00",15
+"dr. Bella Kusuma, Sp.JP, FESC, FSCAI",Jumat,"10.00 - 16.00",20
+"dr. Clara Anindita, Sp.JP(K), FIHA",Kamis,"11.00 - 15.00",11
+"dr. Muhammad Rafiq, Sp.JP, FACC",Senin,"11.00 - 15.30",10
+"dr. Dwi Setiawan, Sp.JP, FESC",Selasa,"12.00 - 14.30",8
+"dr. Jessica Alifia, Sp.JP, FAsCC",Sabtu,"10.00 - 17.30",20
+"dr. Ivan Pratama, Sp.JP, FSCAI",Minggu,"15.00 - 21.30",23
+"dr. Arjuna Widodo, Sp.JP(K), FACC",Senin,"16.00 - 18.00",15
+"dr. Maya Lestari, Sp.JP, FAPSIC",Rabu,"14.00 - 15.30",9
+"dr. Riza Hakim, Sp.JP, FIHA, FESC",Minggu,"08.00 - 11.00",10
+"dr. Silvia Ramadhani, Sp.JP, FAsCC",Sabtu,"09.00 - 15.00",15
+"dr. Johan Sulaiman, Sp.JP, FACC, FIHA",Selasa,"10.00 - 14.00",12
+"dr. Jason Cristover, Sp.JP, FAPSIC",Kamis,"11.00 - 15.00",13
+"dr. Amanda Humaira, Sp.JP, FACC, FIHA",Rabu,"14.00 - 17.00",11
+"dr. Bunga Melati, Sp.JP, FSCAI",Senin,"10.00 - 15.00",15
+"dr. Stefanus Widodo, Sp.JP(K), FACC",Rabu,"11.00 - 16.00",15
+"dr. Nafisa Arrasyida, Sp.JP, FAsCC",Selasa,"10.00 - 15.00",15
+"dr. Athaillah Sifa Tanudatar, Sp.JP(K), FACC, FIHA",Sabtu,"11.00 - 14.30",10
+"dr. Timothy Donald, Sp.JP, FESC",Minggu,"15.00 - 22.30",20
+"dr. Aditya Dharma, Sp.JP, FACC, FIHA",Jumat,"08.00 - 12.30",15
+"dr. Reyvano Mario, Sp.JP, FACC",Senin,"09.00 - 11.00",10
+"dr. Nelil Amaani, Sp.JP, FAPSIC",Rabu,"11.00 - 15.30",15
