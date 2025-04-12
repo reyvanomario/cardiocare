@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'cardio_care.wsgi.application'
 DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.{}'.format(
-             os.getenv('DB_ENGINE', 'sqlite3')
+             os.getenv('DB_ENGINE', 'django.db.backends.postgresql')
          ),
          'NAME': os.getenv('DB_NAME', 'polls'),
          'USER': os.getenv('DB_USER'),
