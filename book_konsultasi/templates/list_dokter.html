@@ -1,0 +1,774 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daftar Dokter - {{ rumah_sakit.nama }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Main container layout */
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .container {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap; /* Makes it responsive */
+    }
+
+    /* Hospital info card */
+    .hospital-box {
+        flex: 1;
+        min-width: 250px;
+        background-color: var(--light-red);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .hospital-logo {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(var(--primary-red-rgb, 220, 50, 50), 0.15);
+    }
+
+    .hospital-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-red);
+        margin-bottom: 0.75rem;
+    }
+
+    .hospital-address {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .hospital-meta {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(var(--primary-red-rgb, 220, 50, 50), 0.15);
+    }
+    
+    .hospital-meta p {
+        font-size: 0.9rem;
+        color: #777;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Doctor list section */
+    .dokter-list {
+        flex: 3;
+        min-width: 300px;
+    }
+    
+    .dokter-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--light-red);
+        padding-bottom: 0.75rem;
+    }
+    
+    .dokter-list-header h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-red);
+        margin: 0;
+    }
+
+    /* Doctor card styling */
+    .dokter-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #eee;
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+    }
+
+    .dokter-card:hover {
+        box-shadow: 0 8px 16px rgba(var(--primary-red-rgb, 220, 50, 50), 0.1);
+        transform: translateY(-5px);
+        border-color: rgba(var(--primary-red-rgb, 220, 50, 50), 0.2);
+    }
+    
+    .dokter-left {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .dokter-photo {
+        width: 75px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-right: 1.25rem;
+        border: 3px solid var(--light-red);
+        padding: 3px;
+    }
+
+    .dokter-info {
+        flex: 1;
+    }
+
+    .dokter-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dokter-specialty {
+        color: var(--primary-red);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .dokter-meta {
+        font-size: 0.85rem;
+        color: #777;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dokter-quota {
+    margin-left: 1rem;
+    font-weight: 500;
+    color: #666;
+    }
+
+    .low-quota {
+        color: #dc3545;
+    }
+    
+    .dokter-meta i {
+        color: var(--primary-red);
+    }
+    
+    .dokter-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .btn-book {
+        background-color: var(--primary-red);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-book:hover {
+        background-color: var(--dark-red);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(var(--primary-red-rgb, 220, 50, 50), 0.3);
+    }
+    
+    /* Badge for availability */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+    
+    .badge-available {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+    
+    .badge-busy {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+    }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        width: 100%;
+        max-width: 460px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        text-align: center;
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-red);
+    }
+
+    .modal-body {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn-close {
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        color: #999;
+        transition: color 0.2s ease;
+    }
+    
+    .btn-close:hover {
+        color: var(--primary-red);
+    }
+    
+    /* Doctor detail view styling */
+    .dokter-detail {
+        display: none;
+        flex: 3;
+        min-width: 300px;
+    }
+    
+    .dokter-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--light-red);
+        padding-bottom: 0.75rem;
+    }
+    
+    .dokter-detail-header h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-red);
+        margin: 0;
+    }
+    
+    .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: transparent;
+        color: var(--primary-red);
+        border: 1px solid var(--primary-red);
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-back:hover {
+        background-color: rgba(var(--primary-red-rgb, 220, 50, 50), 0.1);
+    }
+    
+    .dokter-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 14px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    .dokter-profile-photo {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 1.5rem;
+        border: 4px solid var(--light-red);
+        padding: 4px;
+    }
+    
+    .dokter-profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+    
+    .dokter-profile-specialty {
+        color: var(--primary-red);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .dokter-profile-info {
+        width: 100%;
+        margin: 1.5rem 0;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+    
+    .info-icon {
+        color: var(--primary-red);
+        font-size: 1.25rem;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    .info-text {
+        font-size: 1rem;
+        color: #555;
+    }
+    
+    .dokter-profile-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+        width: 100%;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        
+        .hospital-box {
+            position: relative;
+            top: 0;
+        }
+        
+        .dokter-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .dokter-left {
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        
+        .dokter-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="container">
+        <!-- Hospital Information -->
+        <div class="hospital-box">
+            <img src="{% static 'img/default_rumah_sakit.png' %}" alt="Logo Rumah Sakit" class="hospital-logo">
+            <div class="hospital-name">{{ rumah_sakit.nama }}</div>
+            <div class="hospital-address">{{ rumah_sakit.alamat }}</div>
+            
+            <div class="hospital-meta">
+                <p><i class="fa fa-map-marker"></i> {{ rumah_sakit.kota }}</p>
+                <p><i class="fa fa-phone"></i> {{ rumah_sakit.telepon|default:"(021) 1234-5678" }}</p>
+                <p><i class="fa fa-clock-o"></i> Buka 24 Jam</p>
+            </div>
+        </div>
+
+        <!-- Dokter List -->
+        <div id="dokter-list-container" class="dokter-list">
+            <div class="dokter-list-header">
+                <h2>Daftar Dokter</h2>
+            </div>
+            
+            {% for dokter in dokter %}
+            <div class="dokter-card" data-dokter-id="{{ dokter.id_dokter }}" data-dokter-name="{{ dokter.nama_dokter }}" data-dokter-jadwal="{{ dokter.jadwal }}" data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}">
+                <div class="dokter-left">
+                    <img src="{% static 'img/default_dokter.png' %}" alt="Foto Dokter" class="dokter-photo">
+                    <div class="dokter-info">
+                        <div class="dokter-name">{{ dokter.nama_dokter }}</div>
+                        <div class="dokter-specialty">Spesialis Kardiologi</div>
+                        <div class="dokter-meta">
+                            <i class="fa fa-calendar"></i> 
+                            {{ dokter.jadwal }}
+                            <span class="dokter-quota">Kuota: {{ dokter.jadwal.kuota }}</span>
+                            {% if dokter.jadwal.kuota > 0 %}
+                                <span class="badge badge-available">Tersedia</span>
+                            {% else %}
+                                <span class="badge badge-busy">Penuh</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="dokter-actions">
+                    <button class="btn btn-book" 
+                            data-dokter-id="{{ dokter.id_dokter }}"
+                            data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}">
+                        <i class="fa fa-calendar-check-o"></i> Book
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Dokter Detail View -->
+        <div id="dokter-detail-container" class="dokter-detail">
+            <div class="dokter-detail-header">
+                <button id="back-to-list" class="btn-back">
+                    <i class="fa fa-arrow-left"></i> Kembali
+                </button>
+                <h2>Detail Dokter</h2>
+            </div>
+            
+            <div class="dokter-profile">
+                <img src="{% static 'img/default_dokter.png' %}" alt="Foto Dokter" class="dokter-profile-photo">
+                <div class="dokter-profile-name" id="detail-dokter-name"></div>
+                <div class="dokter-profile-specialty">Spesialis Kardiologi</div>
+                
+                <div class="dokter-profile-info">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-hospital-o"></i>
+                        </div>
+                        <div class="info-text">
+                            <strong>Rumah Sakit:</strong> {{ rumah_sakit.nama }}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <div class="info-text">
+                            <strong>Jadwal Praktek:</strong> <span id="detail-dokter-jadwal"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-check-circle"></i>
+                        </div>
+                        <div class="info-text">
+                            <strong>Status:</strong> <span class="badge badge-available">Tersedia</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dokter-profile-actions">
+                    <button class="btn btn-book" id="detail-book-btn">
+                        <i class="fa fa-calendar-check-o"></i> Book
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+{% include 'login_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dokterCards = document.querySelectorAll('.dokter-card');
+        const bookButtons = document.querySelectorAll('.btn-book');
+        const modal = document.getElementById('loginModal');
+        const dokterListContainer = document.getElementById('dokter-list-container');
+        const dokterDetailContainer = document.getElementById('dokter-detail-container');
+        const backButton = document.getElementById('back-to-list');
+        const detailBookBtn = document.getElementById('detail-book-btn');
+
+        // Handle clicking on a doctor card
+        dokterCards.forEach(card => {
+            card.addEventListener('click', function(event) {
+                // Prevent triggering when clicking on a button inside the card
+                if (!event.target.closest('.btn')) {
+                    const dokterId = this.getAttribute('data-dokter-id');
+                    const dokterName = this.getAttribute('data-dokter-name');
+                    const dokterJadwal = this.getAttribute('data-dokter-jadwal');
+                    const jadwalId = this.getAttribute('data-jadwal-id');
+                    const dokterKuota = this.querySelector('.dokter-quota').textContent;
+                    
+                    // Update detail view with doctor information
+                    document.getElementById('detail-dokter-name').textContent = dokterName;
+                    document.getElementById('detail-dokter-jadwal').textContent = dokterJadwal;
+                    document.getElementById('detail-dokter-kuota').textContent = dokterKuota;
+                    detailBookBtn.setAttribute('data-dokter-id', dokterId);
+                    detailBookBtn.setAttribute('data-dokter-name', dokterName);
+                    detailBookBtn.setAttribute('data-dokter-jadwal', dokterJadwal);
+                    detailBookBtn.setAttribute('data-jadwal-id', jadwalId);
+                    
+                    // Show detail view and hide list view
+                    dokterListContainer.style.display = 'none';
+                    dokterDetailContainer.style.display = 'block';
+                }
+            });
+        });
+        
+        // Handle clicking on the back button
+        backButton.addEventListener('click', function() {
+            dokterDetailContainer.style.display = 'none';
+            dokterListContainer.style.display = 'block';
+        });
+
+        // Handle booking functionality (same logic as in the original)
+        function setupBookingButton(button) {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent card click when clicking the button
+                const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+                if (!isAuthenticated) {
+                    modal.classList.add('active');
+                } else {
+                    // Redirect to book functionality
+                    alert('Redirecting to booking page...');
+                }
+            });
+        }
+        
+        // Setup booking buttons on the list view
+        bookButtons.forEach(button => {
+            setupBookingButton(button);
+        });
+        
+        // Setup booking button on the detail view
+        setupBookingButton(detailBookBtn);
+        
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+
+    function closeModal() {
+        const modal = document.getElementById('loginModal');
+        modal.classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dokterCards = document.querySelectorAll('.dokter-card');
+        const bookButtons = document.querySelectorAll('.btn-book');
+        const loginModal = document.getElementById('loginModal');
+        const confirmationModal = document.getElementById('bookingConfirmationModal');
+        const receiptModal = document.getElementById('bookingReceiptModal');
+        const dokterListContainer = document.getElementById('dokter-list-container');
+        const dokterDetailContainer = document.getElementById('dokter-detail-container');
+        const backButton = document.getElementById('back-to-list');
+        const detailBookBtn = document.getElementById('detail-book-btn');
+        const confirmBookingBtn = document.getElementById('confirm-booking-btn');
+        
+        // Handle clicking on a doctor card
+        dokterCards.forEach(card => {
+            card.addEventListener('click', function(event) {
+                // Prevent triggering when clicking on a button inside the card
+                if (!event.target.closest('.btn')) {
+                    const dokterId = this.getAttribute('data-dokter-id');
+                    const dokterName = this.getAttribute('data-dokter-name');
+                    const dokterJadwal = this.getAttribute('data-dokter-jadwal');
+                    
+                    // Update detail view with doctor information
+                    document.getElementById('detail-dokter-name').textContent = dokterName;
+                    document.getElementById('detail-dokter-jadwal').textContent = dokterJadwal;
+                    detailBookBtn.setAttribute('data-dokter-id', dokterId);
+                    detailBookBtn.setAttribute('data-dokter-name', dokterName);
+                    detailBookBtn.setAttribute('data-dokter-jadwal', dokterJadwal);
+                    
+                    // Show detail view and hide list view
+                    dokterListContainer.style.display = 'none';
+                    dokterDetailContainer.style.display = 'block';
+                }
+            });
+        });
+        
+        // Handle clicking on the back button
+        backButton.addEventListener('click', function() {
+            dokterDetailContainer.style.display = 'none';
+            dokterListContainer.style.display = 'block';
+        });
+
+        // Handle booking functionality
+        function setupBookingButton(button) {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent card click when clicking the button
+                const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+                const dokterId = this.getAttribute('data-dokter-id');
+                const dokterName = this.getAttribute('data-dokter-name');
+                const dokterJadwal = this.getAttribute('data-dokter-jadwal');
+                const jadwalId = this.getAttribute('data-jadwal-id');
+                const rumahSakit = "{{ rumah_sakit.nama }}";
+                
+                if (!isAuthenticated) {
+                    loginModal.classList.add('active');
+                } else {
+                    // Show confirmation modal
+                    document.getElementById('confirm-dokter-name').textContent = dokterName;
+                    document.getElementById('confirm-dokter-jadwal').textContent = dokterJadwal;
+                    document.getElementById('confirm-rumah-sakit').textContent = rumahSakit;
+                    confirmBookingBtn.setAttribute('data-dokter-id', dokterId);
+                    confirmBookingBtn.setAttribute('data-jadwal-id', jadwalId);
+                    confirmationModal.classList.add('active');
+                }
+            });
+        }
+        
+        // Setup booking buttons on the list view
+        bookButtons.forEach(button => {
+            setupBookingButton(button);
+        });
+        
+        // Setup booking button on the detail view
+        setupBookingButton(detailBookBtn);
+        
+        // Handle confirm booking
+        confirmBookingBtn.addEventListener('click', function() {
+            const jadwalId = this.getAttribute('data-jadwal-id');
+            const dokterName = document.getElementById('confirm-dokter-name').textContent;
+            const dokterJadwal = document.getElementById('confirm-dokter-jadwal').textContent;
+            const rumahSakit = document.getElementById('confirm-rumah-sakit').textContent;
+            
+            // Make an AJAX request to the booking API
+            fetch(`/book-konsultasi/${jadwalId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    jadwal: jadwalId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    closeConfirmationModal();
+                } else {
+                    // Show receipt modal
+                    closeConfirmationModal();
+                    document.getElementById('receipt-booking-id').textContent = data.data.id_book_konsultasi;
+                    document.getElementById('receipt-dokter-name').textContent = dokterName;
+                    document.getElementById('receipt-dokter-jadwal').textContent = dokterJadwal;
+                    document.getElementById('receipt-rumah-sakit').textContent = rumahSakit;
+                    document.getElementById('receipt-tanggal').textContent = new Date().toLocaleDateString('id-ID');
+                    receiptModal.classList.add('active');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat melakukan booking. Silakan coba lagi.');
+                closeConfirmationModal();
+            });
+        });
+        
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Close modals when clicking outside of them
+        window.addEventListener('click', function(event) {
+            if (event.target === loginModal) {
+                closeLoginModal();
+            } else if (event.target === confirmationModal) {
+                closeConfirmationModal();
+            } else if (event.target === receiptModal) {
+                closeReceiptModal();
+            }
+        });
+    });
+
+    function closeLoginModal() {
+        const modal = document.getElementById('loginModal');
+        modal.classList.remove('active');
+    }
+
+    function closeConfirmationModal() {
+        const modal = document.getElementById('bookingConfirmationModal');
+        modal.classList.remove('active');
+    }
+
+    function closeReceiptModal() {
+        const modal = document.getElementById('bookingReceiptModal');
+        modal.classList.remove('active');
+    }
+    </script>
+{% endblock %}

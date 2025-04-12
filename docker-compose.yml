@@ -11,7 +11,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
- 
+    networks:
+      - my-network   # <-- Tambahkan ini
+
   django-main:
     build: .
     container_name: django-main
@@ -29,7 +31,6 @@ services:
       DATABASE_ENGINE: ${DB_ENGINE}
       DATABASE_NAME: ${DB_NAME}
       DATABASE_USERNAME: ${DB_USER}
-  
       DATABASE_PASSWORD: ${DB_PASSWORD}
       DATABASE_HOST: ${DB_HOST}
       DATABASE_PORT: ${DB_PORT}
@@ -37,6 +38,7 @@ services:
       - .env
     volumes:
       - .:/app
+
 volumes:
   postgres_data:
 

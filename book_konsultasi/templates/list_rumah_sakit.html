@@ -1,0 +1,522 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daftar Rumah Sakit - CardioCare{% endblock %}
+{% block extra_css %}
+<style>
+    :root {
+        --primary-red: #9e1a1a;
+        --light-red: #f8e9e9;
+        --dark-red: #7a0e0e;
+        --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 15px 35px rgba(158, 26, 26, 0.15);
+        --card-border-radius: 12px;
+        --transition-speed: 0.3s;
+    }
+
+    /* Section utama */
+    .container {
+        max-width: 1200px;
+        padding: 0 1.5rem;
+    }
+
+    h2.text-center {
+        color: var(--dark-red);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+
+    h2.text-center:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(to right, var(--light-red), var(--primary-red), var(--light-red));
+        border-radius: 2px;
+    }
+
+    /* Bagian pencarian dan filter */
+    .search-filter-section {
+        background: linear-gradient(145deg, var(--light-red), #ffffff);
+        padding: 1.75rem;
+        border-radius: var(--card-border-radius);
+        margin-bottom: 2.5rem;
+        box-shadow: var(--soft-shadow);
+        border: 1px solid rgba(158, 26, 26, 0.1);
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: var(--dark-red);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+    }
+
+    .input-group-text {
+        background-color: var(--light-red);
+        border: 1px solid rgba(158, 26, 26, 0.2);
+        color: var(--primary-red);
+    }
+
+    .filter-input {
+        border: 1px solid rgba(158, 26, 26, 0.2);
+        border-radius: 4px;
+        padding: 0.65rem 1rem;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .filter-input:focus {
+        border-color: var(--primary-red);
+        box-shadow: 0 0 0 0.2rem rgba(158, 26, 26, 0.15);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-red);
+        border-color: var(--primary-red);
+        padding: 0.65rem 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--dark-red);
+        border-color: var(--dark-red);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(158, 26, 26, 0.25);
+    }
+
+    /* Kartu rumah sakit */
+    .rs-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+        box-shadow: var(--soft-shadow);
+        height: 100%;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        animation: fadeIn 0.6s ease forwards;
+        opacity: 0;
+        position: relative;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .rs-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--hover-shadow);
+    }
+
+    .rs-card:hover .rs-logo img {
+        transform: scale(1.05);
+    }
+
+    .rs-logo {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    }
+
+    .rs-logo img {
+        width: 100%;
+        height: auto;
+        max-height: 150px;
+        object-fit: contain;
+        transition: transform var(--transition-speed) ease;
+    }
+
+    .rs-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .rs-name {
+        font-weight: 700;
+        color: var(--dark-red);
+        margin: 1.2rem 0;
+        font-size: 1.1rem;
+        line-height: 1.3;
+        transition: color var(--transition-speed) ease;
+        padding: 0 0.75rem;
+    }
+
+    .rs-card:hover .rs-name {
+        color: var(--primary-red);
+    }
+
+    .rs-desc {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Status kosong */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(145deg, var(--light-red), #ffffff);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--soft-shadow);
+        border: 1px solid rgba(158, 26, 26, 0.1);
+    }
+
+    .empty-state p {
+        color: var(--dark-red);
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    /* Pagination styling */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .pagination {
+        display: inline-flex;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 50px;
+        box-shadow: var(--soft-shadow);
+        border: 1px solid rgba(158, 26, 26, 0.1);
+    }
+
+    .page-item {
+        list-style: none;
+        margin: 0 0.25rem;
+    }
+
+    .page-link {
+        border: none;
+        min-width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-red);
+        font-weight: 600;
+        transition: all 0.2s ease;
+        background: transparent;
+        text-decoration: none;
+    }
+
+    .page-link:hover {
+        background-color: var(--light-red);
+        color: var(--primary-red);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-red);
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        color: #adb5bd;
+        pointer-events: none;
+        background-color: transparent;
+    }
+    
+    /* Animasi spinner untuk AJAX loading */
+    .spinner {
+        display: none;
+        width: 40px;
+        height: 40px;
+        margin: 1rem auto;
+        border: 4px solid var(--light-red);
+        border-top: 4px solid var(--primary-red);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Animasi */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Animasi delay untuk kartu */
+    .col-md-3:nth-child(1) .rs-card { animation-delay: 0.1s; }
+    .col-md-3:nth-child(2) .rs-card { animation-delay: 0.2s; }
+    .col-md-3:nth-child(3) .rs-card { animation-delay: 0.3s; }
+    .col-md-3:nth-child(4) .rs-card { animation-delay: 0.4s; }
+    .col-md-3:nth-child(5) .rs-card { animation-delay: 0.1s; }
+    .col-md-3:nth-child(6) .rs-card { animation-delay: 0.2s; }
+    .col-md-3:nth-child(7) .rs-card { animation-delay: 0.3s; }
+    .col-md-3:nth-child(8) .rs-card { animation-delay: 0.4s; }
+
+    /* Responsif */
+    @media (max-width: 992px) {
+        .search-filter-section {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rs-card {
+            margin-bottom: 1rem;
+        }
+        
+        h2.text-center {
+            font-size: 1.75rem;
+        }
+        
+        .page-link {
+            min-width: 35px;
+            height: 35px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container {
+            padding: 0 1rem;
+        }
+        
+        .search-filter-section {
+            padding: 1.25rem;
+        }
+        
+        h2.text-center {
+            font-size: 1.5rem;
+        }
+        
+        .page-link {
+            min-width: 30px;
+            height: 30px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Daftar Rumah Sakit</h2>
+
+    <!-- Search & Filter Section -->
+    <div class="search-filter-section mb-4">
+        <form action="{% url 'book_konsultasi:list_rumah_sakit' %}" method="get" id="filterForm">
+            <div class="row g-3">
+                <div class="col-md-8 mx-auto">
+                    <label for="searchInput" class="filter-label">Cari Rumah Sakit</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control filter-input" id="searchInput" name="q" 
+                               placeholder="Masukkan nama rumah sakit..." 
+                               value="{{ request.GET.q|default:'' }}">
+                        <button class="btn btn-primary" type="submit">
+                            Cari
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="rumahSakitContainer" class="row">
+        {% for rs in rumah_sakit_list %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="{% url 'book_konsultasi:list_dokter' rs.id_rumah_sakit %}" class="text-decoration-none">
+                    <div class="rs-card">
+                        <div class="rs-logo">
+                            <img src="{% static 'img/default_rumah_sakit.png' %}" alt="{{ rs.nama_rumah_sakit }}">
+                        </div>
+                        <div class="rs-name">{{ rs.nama_rumah_sakit }}</div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+        <div class="empty-state">
+            <p>Tidak ada rumah sakit yang ditemukan. Silakan coba dengan kata kunci lain.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner"></div>
+    
+    <!-- Pagination -->
+    <div class="pagination-container">
+        <nav aria-label="Navigasi halaman rumah sakit">
+            <ul class="pagination">
+                {% if rumah_sakit_list.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Pertama">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ rumah_sakit_list.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Sebelumnya">
+                            <span aria-hidden="true">&lsaquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Pertama">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Sebelumnya">
+                            <span aria-hidden="true">&lsaquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for i in rumah_sakit_list.paginator.page_range %}
+                    {% if rumah_sakit_list.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% elif i > rumah_sakit_list.number|add:'-3' and i < rumah_sakit_list.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if rumah_sakit_list.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ rumah_sakit_list.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Selanjutnya">
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ rumah_sakit_list.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Terakhir">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Selanjutnya">
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Terakhir">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Membuat fungsi untuk animasi kartu rumah sakit setelah perubahan konten
+    function animateCards() {
+        const cards = document.querySelectorAll('.rs-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${(index % 4) * 0.1}s`;
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.opacity = '1';
+            }, 50);
+        });
+    }
+
+    // Handle pagination dengan AJAX
+    const paginationLinks = document.querySelectorAll('.pagination .page-link');
+    const spinner = document.getElementById('loadingSpinner');
+    const rsContainer = document.getElementById('rumahSakitContainer');
+    
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Skip untuk link yang disabled atau active
+            if (this.parentElement.classList.contains('disabled') || 
+                this.parentElement.classList.contains('active')) {
+                e.preventDefault();
+                return;
+            }
+            
+            e.preventDefault();
+            
+            // Tampilkan spinner loading
+            spinner.style.display = 'block';
+            
+            // Dapatkan URL dari link
+            const url = new URL(this.href);
+            
+            // Buat fetch request
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan spinner
+                spinner.style.display = 'none';
+                
+                // Update URL browser tanpa refresh
+                history.pushState({}, '', url);
+                
+                // Reload halaman dengan data baru
+                window.location.href = url;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                spinner.style.display = 'none';
+            });
+        });
+    });
+    
+    // Handle pencarian dengan form
+    const searchForm = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Jika input pencarian kosong, kembali ke halaman pertama tanpa parameter query
+        if (searchInput.value.trim() === '') {
+            window.location.href = window.location.pathname;
+            return;
+        }
+        
+        // Buat URL dengan parameter pencarian
+        const baseUrl = window.location.pathname;
+        const searchQuery = searchInput.value.trim();
+        const url = `${baseUrl}?q=${encodeURIComponent(searchQuery)}`;
+        
+        // Tampilkan spinner
+        spinner.style.display = 'block';
+        
+        // Redirect ke URL dengan parameter pencarian
+        window.location.href = url;
+    });
+    
+    // Jalankan animasi kartu saat halaman dimuat
+    animateCards();
+});
+</script>
+{% endblock %}
+{% endblock %}
