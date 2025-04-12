@@ -15,8 +15,8 @@ class Command(BaseCommand):
             for row in reader:
                 Obat.objects.create(
                     nama_obat=row['nama_obat'],
-                    harga=Decimal(row['harga']),  # Konversi ke Decimal
+                    harga=row['harga'],  
                     deskripsi=row['deskripsi'],
                     aturan_pakai=row['aturan_pakai'],
-                    stok=int(row['stok'])  # Konversi ke integer
+                    stok=row['stok']  # Konversi ke integer
                 )

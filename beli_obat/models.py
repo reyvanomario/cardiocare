@@ -7,7 +7,7 @@ class Obat(models.Model):
     nama_obat = models.CharField(max_length=100)
     deskripsi = models.TextField()
     harga = models.DecimalField(max_digits=10, decimal_places=2)
-    aturan_pakai = models.CharField(max_length=100, null=True, blank=True)
+    aturan_pakai = models.TextField(null=True, blank=True)
     stok = models.PositiveIntegerField(default=0)
     
     class Meta:
