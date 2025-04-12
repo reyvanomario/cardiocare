@@ -431,7 +431,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Membuat fungsi untuk animasi kartu rumah sakit setelah perubahan konten
     function animateCards() {
         const cards = document.querySelectorAll('.rs-card');
         cards.forEach((card, index) => {
@@ -443,14 +442,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle pagination dengan AJAX
     const paginationLinks = document.querySelectorAll('.pagination .page-link');
     const spinner = document.getElementById('loadingSpinner');
     const rsContainer = document.getElementById('rumahSakitContainer');
     
     paginationLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Skip untuk link yang disabled atau active
             if (this.parentElement.classList.contains('disabled') || 
                 this.parentElement.classList.contains('active')) {
                 e.preventDefault();
@@ -458,14 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             e.preventDefault();
-            
-            // Tampilkan spinner loading
             spinner.style.display = 'block';
-            
-            // Dapatkan URL dari link
             const url = new URL(this.href);
-            
-            // Buat fetch request
             fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -473,13 +464,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                // Sembunyikan spinner
                 spinner.style.display = 'none';
                 
-                // Update URL browser tanpa refresh
                 history.pushState({}, '', url);
-                
-                // Reload halaman dengan data baru
                 window.location.href = url;
             })
             .catch(error => {
@@ -489,32 +476,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle pencarian dengan form
     const searchForm = document.getElementById('filterForm');
     const searchInput = document.getElementById('searchInput');
     
     searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Jika input pencarian kosong, kembali ke halaman pertama tanpa parameter query
         if (searchInput.value.trim() === '') {
             window.location.href = window.location.pathname;
             return;
         }
         
-        // Buat URL dengan parameter pencarian
         const baseUrl = window.location.pathname;
         const searchQuery = searchInput.value.trim();
         const url = `${baseUrl}?q=${encodeURIComponent(searchQuery)}`;
         
-        // Tampilkan spinner
         spinner.style.display = 'block';
         
-        // Redirect ke URL dengan parameter pencarian
         window.location.href = url;
     });
     
-    // Jalankan animasi kartu saat halaman dimuat
     animateCards();
 });
 </script>

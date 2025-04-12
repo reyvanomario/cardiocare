@@ -13,5 +13,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('beli-obat/', include('beli_obat.urls')),
-    path('cari-konsultasi/', include('book_konsultasi.urls')),
+    path('cari-konsultasi/', include('book_konsultasi.urls', namespace='book_konsultasi')),
 ]

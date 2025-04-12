@@ -156,9 +156,9 @@
     }
 
     .dokter-quota {
-    margin-left: 1rem;
-    font-weight: 500;
-    color: #666;
+        margin-left: 1rem;
+        font-weight: 500;
+        color: #666;
     }
 
     .low-quota {
@@ -431,12 +431,11 @@
         <!-- Hospital Information -->
         <div class="hospital-box">
             <img src="{% static 'img/default_rumah_sakit.png' %}" alt="Logo Rumah Sakit" class="hospital-logo">
-            <div class="hospital-name">{{ rumah_sakit.nama }}</div>
-            <div class="hospital-address">{{ rumah_sakit.alamat }}</div>
+            <div class="hospital-name">{{ rumah_sakit.nama_rumah_sakit }}</div>
+            <div class="hospital-address">{{ rumah_sakit.alamat_rumah_sakit }}</div>
             
             <div class="hospital-meta">
-                <p><i class="fa fa-map-marker"></i> {{ rumah_sakit.kota }}</p>
-                <p><i class="fa fa-phone"></i> {{ rumah_sakit.telepon|default:"(021) 1234-5678" }}</p>
+                <p><i class="fa fa-phone"></i> {{ rumah_sakit.no_telp|default:"Tidak terdaftar" }}</p>
                 <p><i class="fa fa-clock-o"></i> Buka 24 Jam</p>
             </div>
         </div>
@@ -448,11 +447,11 @@
             </div>
             
             {% for dokter in dokter %}
-            <div class="dokter-card" data-dokter-id="{{ dokter.id_dokter }}" data-dokter-name="{{ dokter.nama_dokter }}" data-dokter-jadwal="{{ dokter.jadwal }}" data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}">
+            <div class="dokter-card" data-dokter-id="{{ dokter.id_dokter }}" data-dokter-name="{{ dokter.dokter.nama_dokter }}" data-dokter-jadwal="{{ dokter.jadwal }}" data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}" data-rumah-sakit="{{ rumah_sakit.nama_rumah_sakit }}">
                 <div class="dokter-left">
                     <img src="{% static 'img/default_dokter.png' %}" alt="Foto Dokter" class="dokter-photo">
                     <div class="dokter-info">
-                        <div class="dokter-name">{{ dokter.nama_dokter }}</div>
+                        <div class="dokter-name">{{ dokter.dokter.nama_dokter }}</div>
                         <div class="dokter-specialty">Spesialis Kardiologi</div>
                         <div class="dokter-meta">
                             <i class="fa fa-calendar"></i> 
@@ -467,11 +466,9 @@
                     </div>
                 </div>
                 <div class="dokter-actions">
-                    <button class="btn btn-book" 
-                            data-dokter-id="{{ dokter.id_dokter }}"
-                            data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}">
+                    <a href="/cari-konsultasi/book-konsultasi/{{ dokter.jadwal.id_jdwl_konsultasi }}/" class="btn btn-book">
                         <i class="fa fa-calendar-check-o"></i> Book
-                    </button>
+                    </a>
                 </div>
             </div>
             {% endfor %}
@@ -497,7 +494,7 @@
                             <i class="fa fa-hospital-o"></i>
                         </div>
                         <div class="info-text">
-                            <strong>Rumah Sakit:</strong> {{ rumah_sakit.nama }}
+                            <strong>Rumah Sakit:</strong> {{ rumah_sakit.nama_rumah_sakit }}
                         </div>
                     </div>
                     
@@ -521,214 +518,205 @@
                 </div>
                 
                 <div class="dokter-profile-actions">
-                    <button class="btn btn-book" id="detail-book-btn">
+                    <a href="#" class="btn btn-book" id="detail-book-btn">
                         <i class="fa fa-calendar-check-o"></i> Book
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-{% include 'login_modal.html' %}
+<!-- Include only the booking confirmation and receipt modals -->
+{% include 'booking_confirmation_modal.html' %}
+{% include 'booking_receipt_modal.html' %}
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script>    
     document.addEventListener('DOMContentLoaded', function () {
+        function safeText(text) {
+            return text || 'Tidak tersedia';
+        }
+
         const dokterCards = document.querySelectorAll('.dokter-card');
-        const bookButtons = document.querySelectorAll('.btn-book');
-        const modal = document.getElementById('loginModal');
         const dokterListContainer = document.getElementById('dokter-list-container');
         const dokterDetailContainer = document.getElementById('dokter-detail-container');
         const backButton = document.getElementById('back-to-list');
         const detailBookBtn = document.getElementById('detail-book-btn');
-
-        // Handle clicking on a doctor card
-        dokterCards.forEach(card => {
-            card.addEventListener('click', function(event) {
-                // Prevent triggering when clicking on a button inside the card
-                if (!event.target.closest('.btn')) {
-                    const dokterId = this.getAttribute('data-dokter-id');
-                    const dokterName = this.getAttribute('data-dokter-name');
-                    const dokterJadwal = this.getAttribute('data-dokter-jadwal');
-                    const jadwalId = this.getAttribute('data-jadwal-id');
-                    const dokterKuota = this.querySelector('.dokter-quota').textContent;
-                    
-                    // Update detail view with doctor information
-                    document.getElementById('detail-dokter-name').textContent = dokterName;
-                    document.getElementById('detail-dokter-jadwal').textContent = dokterJadwal;
-                    document.getElementById('detail-dokter-kuota').textContent = dokterKuota;
-                    detailBookBtn.setAttribute('data-dokter-id', dokterId);
-                    detailBookBtn.setAttribute('data-dokter-name', dokterName);
-                    detailBookBtn.setAttribute('data-dokter-jadwal', dokterJadwal);
-                    detailBookBtn.setAttribute('data-jadwal-id', jadwalId);
-                    
-                    // Show detail view and hide list view
-                    dokterListContainer.style.display = 'none';
-                    dokterDetailContainer.style.display = 'block';
-                }
-            });
-        });
-        
-        // Handle clicking on the back button
-        backButton.addEventListener('click', function() {
-            dokterDetailContainer.style.display = 'none';
-            dokterListContainer.style.display = 'block';
-        });
-
-        // Handle booking functionality (same logic as in the original)
-        function setupBookingButton(button) {
-            button.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent card click when clicking the button
-                const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
-                if (!isAuthenticated) {
-                    modal.classList.add('active');
-                } else {
-                    // Redirect to book functionality
-                    alert('Redirecting to booking page...');
-                }
-            });
-        }
-        
-        // Setup booking buttons on the list view
-        bookButtons.forEach(button => {
-            setupBookingButton(button);
-        });
-        
-        // Setup booking button on the detail view
-        setupBookingButton(detailBookBtn);
-        
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeModal();
-            }
-        });
-    });
-
-    function closeModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.remove('active');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const dokterCards = document.querySelectorAll('.dokter-card');
-        const bookButtons = document.querySelectorAll('.btn-book');
-        const loginModal = document.getElementById('loginModal');
         const confirmationModal = document.getElementById('bookingConfirmationModal');
         const receiptModal = document.getElementById('bookingReceiptModal');
-        const dokterListContainer = document.getElementById('dokter-list-container');
-        const dokterDetailContainer = document.getElementById('dokter-detail-container');
-        const backButton = document.getElementById('back-to-list');
-        const detailBookBtn = document.getElementById('detail-book-btn');
         const confirmBookingBtn = document.getElementById('confirm-booking-btn');
-        
-        // Handle clicking on a doctor card
-        dokterCards.forEach(card => {
-            card.addEventListener('click', function(event) {
-                // Prevent triggering when clicking on a button inside the card
-                if (!event.target.closest('.btn')) {
-                    const dokterId = this.getAttribute('data-dokter-id');
-                    const dokterName = this.getAttribute('data-dokter-name');
-                    const dokterJadwal = this.getAttribute('data-dokter-jadwal');
-                    
-                    // Update detail view with doctor information
-                    document.getElementById('detail-dokter-name').textContent = dokterName;
-                    document.getElementById('detail-dokter-jadwal').textContent = dokterJadwal;
-                    detailBookBtn.setAttribute('data-dokter-id', dokterId);
-                    detailBookBtn.setAttribute('data-dokter-name', dokterName);
-                    detailBookBtn.setAttribute('data-dokter-jadwal', dokterJadwal);
-                    
-                    // Show detail view and hide list view
-                    dokterListContainer.style.display = 'none';
-                    dokterDetailContainer.style.display = 'block';
-                }
-            });
-        });
-        
-        // Handle clicking on the back button
-        backButton.addEventListener('click', function() {
-            dokterDetailContainer.style.display = 'none';
-            dokterListContainer.style.display = 'block';
-        });
+        const loginUrl = "http://localhost:3000/login/";
 
-        // Handle booking functionality
-        function setupBookingButton(button) {
-            button.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent card click when clicking the button
-                const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
-                const dokterId = this.getAttribute('data-dokter-id');
-                const dokterName = this.getAttribute('data-dokter-name');
-                const dokterJadwal = this.getAttribute('data-dokter-jadwal');
-                const jadwalId = this.getAttribute('data-jadwal-id');
-                const rumahSakit = "{{ rumah_sakit.nama }}";
-                
-                if (!isAuthenticated) {
-                    loginModal.classList.add('active');
-                } else {
-                    // Show confirmation modal
-                    document.getElementById('confirm-dokter-name').textContent = dokterName;
-                    document.getElementById('confirm-dokter-jadwal').textContent = dokterJadwal;
-                    document.getElementById('confirm-rumah-sakit').textContent = rumahSakit;
-                    confirmBookingBtn.setAttribute('data-dokter-id', dokterId);
-                    confirmBookingBtn.setAttribute('data-jadwal-id', jadwalId);
-                    confirmationModal.classList.add('active');
-                }
-            });
-        }
-        
-        // Setup booking buttons on the list view
-        bookButtons.forEach(button => {
-            setupBookingButton(button);
-        });
-        
-        // Setup booking button on the detail view
-        setupBookingButton(detailBookBtn);
-        
-        // Handle confirm booking
-        confirmBookingBtn.addEventListener('click', function() {
-            const jadwalId = this.getAttribute('data-jadwal-id');
-            const dokterName = document.getElementById('confirm-dokter-name').textContent;
-            const dokterJadwal = document.getElementById('confirm-dokter-jadwal').textContent;
-            const rumahSakit = document.getElementById('confirm-rumah-sakit').textContent;
-            
-            // Make an AJAX request to the booking API
-            fetch(`/book-konsultasi/${jadwalId}/`, {
-                method: 'POST',
+        let isAuthenticated = false;
+
+        function checkAuthStatus() {
+            return fetch('/cari-konsultasi/check-jwt/', {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({
-                    jadwal: jadwalId
-                })
+                credentials: 'same-origin'
             })
             .then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                    closeConfirmationModal();
-                } else {
-                    // Show receipt modal
-                    closeConfirmationModal();
-                    document.getElementById('receipt-booking-id').textContent = data.data.id_book_konsultasi;
-                    document.getElementById('receipt-dokter-name').textContent = dokterName;
-                    document.getElementById('receipt-dokter-jadwal').textContent = dokterJadwal;
-                    document.getElementById('receipt-rumah-sakit').textContent = rumahSakit;
-                    document.getElementById('receipt-tanggal').textContent = new Date().toLocaleDateString('id-ID');
-                    receiptModal.classList.add('active');
-                }
+                isAuthenticated = data.isAuthenticated;
+                console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
+                return data;
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat melakukan booking. Silakan coba lagi.');
-                closeConfirmationModal();
+                console.error("Error checking auth status:", error);
+                isAuthenticated = false;
+                return { isAuthenticated: false };
             });
+        }
+
+        checkAuthStatus().then(() => {
+            updateBookingLinks();
         });
+
+        function updateBookingLinks() {
+            const bookButtons = document.querySelectorAll('.btn-book');
+            
+            bookButtons.forEach(button => {
+                const parent = button.closest('.dokter-card');
+                
+                if (parent) {
+                    const dokterId = parent.getAttribute('data-dokter-id');
+                    const jadwalId = parent.getAttribute('data-jadwal-id');
+                    
+                    button.onclick = function(event) {
+                        event.preventDefault();
+                        handleBookingClick(this, dokterId, jadwalId);
+                    };
+                }
+            });
+            
+            if (detailBookBtn) {
+                detailBookBtn.onclick = function(event) {
+                    event.preventDefault();
+                    const jadwalId = this.getAttribute('data-jadwal-id');
+                    const dokterId = this.getAttribute('data-dokter-id');
+                    handleBookingClick(this, dokterId, jadwalId);
+                };
+            }
+        }
         
-        // Get CSRF token from cookies
+        function handleBookingClick(button, dokterId, jadwalId) {
+            checkAuthStatus().then(data => {
+                if (!data.isAuthenticated) {
+                    window.location.href = `${loginUrl}?next=${encodeURIComponent(window.location.pathname)}&dokter_id=${dokterId}&jadwal_id=${jadwalId}`;
+                    return;
+                }
+                
+                showBookingConfirmation(button, dokterId, jadwalId);
+            });
+        }
+        
+        function showBookingConfirmation(button, dokterId, jadwalId) {
+            let dokterName, dokterJadwal, rumahSakit;
+            const parent = button.closest('.dokter-card');
+            
+            if (parent) {
+                dokterName = parent.getAttribute('data-dokter-name');
+                dokterJadwal = parent.getAttribute('data-dokter-jadwal');
+                rumahSakit = parent.getAttribute('data-rumah-sakit');
+            } else {
+                dokterName = document.getElementById('detail-dokter-name').textContent;
+                dokterJadwal = document.getElementById('detail-dokter-jadwal').textContent;
+                rumahSakit = "{{ rumah_sakit.nama_rumah_sakit }}";
+            }
+            
+            const bookingData = {
+                dokterName: dokterName,
+                dokterJadwal: dokterJadwal,
+                rumahSakit: rumahSakit,
+                jadwalId: jadwalId
+            };
+            
+            const confirmBtn = document.getElementById('confirm-booking-btn');
+            confirmBtn.setAttribute('data-booking-info', JSON.stringify(bookingData));
+            confirmBtn.setAttribute('data-jadwal-id', jadwalId);
+            
+            document.getElementById('confirm-dokter-name').textContent = dokterName;
+            document.getElementById('confirm-dokter-jadwal').textContent = dokterJadwal;
+            document.getElementById('confirm-rumah-sakit').textContent = rumahSakit;
+            
+            confirmationModal.classList.add('active');
+        }
+        if (confirmBookingBtn) {
+            confirmBookingBtn.addEventListener('click', function() {
+                const jadwalId = this.getAttribute('data-jadwal-id');
+                const bookingInfo = JSON.parse(this.getAttribute('data-booking-info') || '{}');
+                
+                checkAuthStatus().then(data => {
+                    if (!data.isAuthenticated) {
+                        closeConfirmationModal();
+                        alert('Sesi login anda telah berakhir. Silahkan login kembali.');
+                        return;
+                    }
+                    
+                    this.disabled = true;
+                    this.textContent = 'Memproses...';
+                    
+                    fetch(`/cari-konsultasi/book-konsultasi/${jadwalId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            jadwal: jadwalId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        confirmBookingBtn.disabled = false;
+                        confirmBookingBtn.textContent = 'Konfirmasi';
+                        
+                        console.log("Response data:", data);
+                        
+                        if (data.error) {
+                            alert(data.error);
+                            closeConfirmationModal();
+                        } else {
+                            closeConfirmationModal();
+                            
+                            const bookingId = data.data && data.data.id_book_konsultasi ? 
+                                            data.data.id_book_konsultasi : 
+                                            'Generated';
+                            
+                            document.getElementById('receipt-booking-id').textContent = bookingId;
+                            document.getElementById('receipt-dokter-name').textContent = safeText(bookingInfo.dokterName);
+                            document.getElementById('receipt-dokter-jadwal').textContent = safeText(bookingInfo.dokterJadwal);
+                            document.getElementById('receipt-rumah-sakit').textContent = safeText(bookingInfo.rumahSakit);
+                            document.getElementById('receipt-tanggal').textContent = new Date().toLocaleDateString('id-ID');
+                            
+            
+                            setTimeout(() => {
+                                receiptModal.classList.add('active');
+                            }, 300);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat melakukan booking. Silakan coba lagi.');
+                        confirmBookingBtn.disabled = false;
+                        confirmBookingBtn.textContent = 'Konfirmasi';
+                        closeConfirmationModal();
+                    });
+                });
+            });
+        }
+        
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -743,32 +731,18 @@
             }
             return cookieValue;
         }
-        
-        // Close modals when clicking outside of them
-        window.addEventListener('click', function(event) {
-            if (event.target === loginModal) {
-                closeLoginModal();
-            } else if (event.target === confirmationModal) {
-                closeConfirmationModal();
-            } else if (event.target === receiptModal) {
-                closeReceiptModal();
-            }
-        });
     });
-
-    function closeLoginModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.remove('active');
-    }
-
     function closeConfirmationModal() {
-        const modal = document.getElementById('bookingConfirmationModal');
-        modal.classList.remove('active');
+        const confirmationModal = document.getElementById('bookingConfirmationModal');
+        if (confirmationModal) {
+            confirmationModal.classList.remove('active');
+        }
     }
-
     function closeReceiptModal() {
-        const modal = document.getElementById('bookingReceiptModal');
-        modal.classList.remove('active');
+        const receiptModal = document.getElementById('bookingReceiptModal');
+        if (receiptModal) {
+            receiptModal.classList.remove('active');
+        }
     }
-    </script>
+</script>
 {% endblock %}

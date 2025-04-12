@@ -18,6 +18,18 @@ from uuid import UUID
 import logging
 from django.db import transaction
 from django.http import JsonResponse
+import jwt
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import render
+import jwt
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from .models import BookKonsultasi
 
 logger = logging.getLogger(__name__)
 
@@ -183,13 +195,47 @@ def view_rumah_sakit(request, id_rumah_sakit):
 @method_decorator(csrf_protect, name='dispatch')
 class BookKonsultasiView(RateLimitMixin, GenericAPIView):
     serializer_class = BookKonsultasiSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [] 
     rate = '10/m'
 
+    def get_user_from_jwt(self, request):
+        token = request.COOKIES.get('jwt') or request.headers.get('Authorization', '').replace('Bearer ', '')
+        
+        if not token:
+            return None
+            
+        try:
+            with open('public.pem', 'rb') as f:
+                public_key = serialization.load_pem_public_key(
+                    f.read(),
+                    backend=default_backend()
+                )
+            
+            payload = jwt.decode(token, public_key, algorithms=['RS256'])
+            user_id = payload.get('id')
+            
+            return {
+                'id': user_id
+            }
+        except Exception as e:
+            logger.error(f"JWT authentication error: {str(e)}")
+            return None
+
     def get_queryset(self):
-        return BookKonsultasi.objects.filter(id_pasien=self.request.user.id)
+        user_data = self.get_user_from_jwt(self.request)
+        if not user_data:
+            return BookKonsultasi.objects.none()
+        return BookKonsultasi.objects.filter(id_pasien=user_data['id'])
 
     def get(self, request, *args, **kwargs):
+        user_data = self.get_user_from_jwt(request)
+        
+        if not user_data:
+            return Response(
+                {"error": "Authentication required"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
         try:
             queryset = self.get_queryset()
             serializer = self.get_serializer(queryset, many=True)
@@ -202,15 +248,15 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
             )
 
     def post(self, request, id_jadwal=None, *args, **kwargs):
+        user_data = self.get_user_from_jwt(request)
+        
+        if not user_data:
+            return Response(
+                {"error": "Authentication required"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
         try:
-            user = request.user
-
-            if hasattr(user, 'role') and user.role != 'Pasien':
-                return Response(
-                    {"error": "Hanya pasien yang dapat booking konsultasi"}, 
-                    status=status.HTTP_403_FORBIDDEN
-                )
-
             jadwal_id = id_jadwal or request.data.get('jadwal')
             if not jadwal_id:
                 return Response(
@@ -238,7 +284,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if BookKonsultasi.objects.filter(jadwal=jadwal, id_pasien=user.id).exists():
+            if BookKonsultasi.objects.filter(jadwal=jadwal, id_pasien=user_data['id']).exists():
                 return Response(
                     {"error": "Anda sudah memesan jadwal ini"}, 
                     status=status.HTTP_400_BAD_REQUEST
@@ -247,7 +293,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
             with transaction.atomic():
                 booking = BookKonsultasi.objects.create(
                     jadwal=jadwal,
-                    id_pasien=user.id,
+                    id_pasien=user_data['id'],
                     tanggal_pemesanan=timezone.now().date()
                 )
 
@@ -274,3 +320,90 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
                 {"error": "Terjadi kesalahan. Silakan coba lagi nanti."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class KonsultasiSayaView(APIView):
+    def get(self, request):
+        jwt_token = request.COOKIES.get('jwt')
+        
+        if not jwt_token:
+            if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({"error": "Anda belum login"}, status=401)
+            else:
+                return render(request, 'bookings.html', {'error_message': 'Anda belum login'})
+        
+        try:
+            with open('public.pem', 'rb') as f:
+                public_key = serialization.load_pem_public_key(
+                    f.read(),
+                    backend=default_backend()
+                )
+            
+            payload = jwt.decode(jwt_token, public_key, algorithms=['RS256'])
+            user_id = payload.get('id')
+            
+            if not user_id:
+                raise jwt.InvalidTokenError("Token tidak valid")
+            
+            bookings = BookKonsultasi.objects.filter(id_pasien=user_id).select_related('jadwal')
+            
+            bookings_data = []
+            for booking in bookings:
+                bookings_data.append({
+                    'id': str(booking.id_book_konsultasi),
+                    'tanggal_pemesanan': booking.tanggal_pemesanan.strftime('%d %B %Y'),
+                    'jadwal_tanggal': booking.jadwal.hari,
+                    'jadwal_waktu_mulai': booking.jadwal.jam_mulai.strftime('%H:%M'),
+                    'jadwal_waktu_selesai': booking.jadwal.jam_selesai.strftime('%H:%M'),
+                    'nama_dokter': booking.jadwal.dokter.nama_dokter if hasattr(booking.jadwal, 'dokter') else 'Tidak tersedia',
+                })
+            
+            if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({"bookings": bookings_data})
+            else:
+                return render(request, 'bookings.html', {'bookings': bookings_data})
+                
+        except jwt.ExpiredSignatureError:
+            if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({"error": "Sesi anda telah berakhir, silakan login kembali"}, status=401)
+            else:
+                return render(request, 'bookings.html', {'error_message': 'Sesi anda telah berakhir, silakan login kembali'})
+                
+        except (jwt.InvalidTokenError, Exception) as e:
+            if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({"error": f"Token tidak valid: {str(e)}"}, status=401)
+            else:
+                return render(request, 'bookings.html', {'error_message': 'Token tidak valid, silakan login kembali'})
+            
+logger = logging.getLogger(__name__)
+
+@method_decorator(csrf_protect, name='dispatch')
+class CheckAuthStatusView(APIView):
+    permission_classes = []
+    
+    def validate_jwt(self, request):
+        token = request.COOKIES.get('jwt')
+        
+        if not token:
+            return False
+            
+        try:
+            with open('public.pem', 'rb') as f:
+                public_key = serialization.load_pem_public_key(
+                    f.read(),
+                    backend=default_backend()
+                )
+            
+            jwt.decode(token, public_key, algorithms=['RS256'])
+            
+            return True
+        except Exception as e:
+            logger.error(f"JWT authentication error: {str(e)}")
+            return False
+
+    def get(self, request, *args, **kwargs):
+        is_authenticated = self.validate_jwt(request)
+        print(is_authenticated)
+        
+        return Response({
+            "isAuthenticated": is_authenticated
+        }, status=status.HTTP_200_OK)

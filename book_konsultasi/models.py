@@ -35,5 +35,5 @@ class JadwalKonsultasi(models.Model):
 class BookKonsultasi(models.Model):
     id_book_konsultasi = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, null=False, blank=False)
     jadwal = models.ForeignKey(JadwalKonsultasi, on_delete=models.RESTRICT)
-    id_pasien = models.UUIDField()  # instead of ForeignKey ke AppUser
+    id_pasien = models.UUIDField()
     tanggal_pemesanan = models.DateField(auto_now_add=True)
