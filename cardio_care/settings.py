@@ -23,19 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-PODS_SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-# SECRET_KEY = 'django-insecure-bk=40re(22ir)7btki29_-^7hr6fq(s!)$ct2#e52fz#_%81n7'
+# PODS_SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+SECRET_KEY = 'django-insecure-bk=40re(22ir)7btki29_-^7hr6fq(s!)$ct2#e52fz#_%81n7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = bool(os.environ.get("DEBUG", default=0))
 DEBUG = True
 
-PODS_ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
-#ALLOWED_HOSTS = ["localhost", "127.0.0.1", "kelompok-38-cardiocare.pkpl.cs.ui.ac.id"]
+# PODS_ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "kelompok-38-cardiocare.pkpl.cs.ui.ac.id"]
 
 
-PODS_CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
-# CSRF_TRUSTED_ORIGINS = ["https://kelompok-38-cardiocare.pkpl.cs.ui.ac.id"]
+# PODS_CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
+CSRF_TRUSTED_ORIGINS = ["https://kelompok-38-cardiocare.pkpl.cs.ui.ac.id"]
 
 # Application definition
 
@@ -155,8 +155,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-PODS_EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
-PODS_EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
-PODS_EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
-PODS_EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-PODS_EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
