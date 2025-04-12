@@ -18,6 +18,8 @@ from uuid import UUID
 import logging
 from django.db import transaction
 from django.http import JsonResponse
+import os
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +49,7 @@ def validate_uuid(uuid_value):
             return False
     return False
 
-@csrf_protect
+
 @require_http_methods(["GET"])
 def list_dokter(request, id_rumah_sakit):
     if not validate_uuid(id_rumah_sakit):
@@ -85,7 +87,7 @@ def list_dokter(request, id_rumah_sakit):
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return redirect('book_konsultasi:list_rumah_sakit')
 
-@csrf_protect
+
 @require_http_methods(["GET"])
 def list_rumah_sakit(request):
     try:
@@ -142,7 +144,7 @@ def list_rumah_sakit(request):
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return render(request, 'list_rumah_sakit.html', {'rumah_sakit_list': [], 'query': ''})
 
-@csrf_protect
+
 @require_http_methods(["GET"])
 def view_dokter(request, id_dokter):
     try:
@@ -161,7 +163,7 @@ def view_dokter(request, id_dokter):
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return redirect('book_konsultasi:list_rumah_sakit')
     
-@csrf_protect
+
 @require_http_methods(["GET"])
 def view_rumah_sakit(request, id_rumah_sakit):
     try:
@@ -274,3 +276,36 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
                 {"error": "Terjadi kesalahan. Silakan coba lagi nanti."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+
+def import_csv_rumahsakit():
+    with open('dataset/rs.csv', mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            RumahSakit.objects.create(
+                nama_rumah_sakit=row['nama_rumah_sakit'],          
+                alamat_rumah_sakit=row['alamat'],
+                no_telp=row['nomor_telepon'],
+            )
+
+def import_csv_dokter():
+    with open('dataset/dokter.csv', mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            rumah_sakit = RumahSakit.objects.get(nama_rumah_sakit=row['nama_rumah_sakit'])
+            Dokter.objects.create(         
+                nama_dokter=row['nama_dokter'],
+                rumah_sakit=rumah_sakit,
+            )
+
+
+
+# def import_csv_jadwal():
+#     with open('dataset/jadwal.csv', mode='r', encoding='utf-8') as file:
+#         reader = csv.DictReader(file)
+#         for row in reader:
+#             nama_dokter = Dokter.objects.get(nama_rumah_sakit=row['nama_dokter'])
+#             JadwalKonsultasi.objects.create(         
+#                 nama_dokter=row['nama_dokter'],
+#                 rumah_sakit=rumah_sakit,
+#             )
