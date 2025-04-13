@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'main',
     'beli_obat',
+    'update_kuota'
 ]
 
 MIDDLEWARE = [
@@ -102,11 +103,11 @@ WSGI_APPLICATION = 'cardio_care.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'kelompok_38_db',
-        'USER': 'kelompok_38',
-        'PASSWORD': 'a1TRf6sWqi6w2Yqp',
-        'HOST': '152.118.29.233',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

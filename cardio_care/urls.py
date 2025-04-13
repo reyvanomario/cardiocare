@@ -13,4 +13,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('beli-obat/', include('beli_obat.urls')),
+    path('kuota/', include('update_kuota.urls')),
 ]

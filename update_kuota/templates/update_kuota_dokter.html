@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Kuota - CardioCare{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-red: #9e1a1a;
+        --dark-red: #7a0e0e;
+        --light-red: #f8e9e9;
+        --dark-text: #333;
+    }
+
+    .form-section {
+        padding: 2rem;
+        background: var(--light-red);
+        border-radius: 8px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-red);
+    }
+
+    .form-section h2 {
+        color: var(--primary-red);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        padding: 0.75rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .btn-submit {
+        background: var(--primary-red);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--dark-red);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.2);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 fade-in">
+    <div class="form-section">
+        <h2>Update Kuota: {{ dokter.nama_dokter }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-submit">Simpan Kuota</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
