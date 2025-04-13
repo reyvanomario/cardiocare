@@ -70,6 +70,9 @@
                         <a class="nav-link" href="#">Artikel</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'update_kuota:list_dokter' %}">Ketersediaan Dokter</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#">Tentang Kami</a>
                     </li>
                 </ul>
@@ -159,7 +162,7 @@
 <script>
     async function handleLogout() {
       try {
-        const response = await fetch('http://cardiocare-auth/api/logout/', {
+        const response = await fetch('http://localhost:3000/api/logout/', {
           method: 'POST',
           credentials: 'include'  // mengirim cookie buat dihapus
         });
