@@ -1,13 +1,13 @@
 from django import forms
 from .models import Dokter
 
-class UpdateKuotaDokterForm(forms.ModelForm):
+class DokterForm(forms.ModelForm):
     class Meta:
         model = Dokter
-        fields = ['kuota']
+        fields = ['kuota'] 
+        labels = {
+            'kuota': 'Kuota Pasien'
+        }
         widgets = {
-            'kuota': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            })
+            'kuota': forms.NumberInput(attrs={'class': 'form-control'})
         }

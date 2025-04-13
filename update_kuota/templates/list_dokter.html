@@ -1,0 +1,37 @@
+<!-- Add this to your list_dokter.html -->
+{% for dokter in dokter_list %}
+<tr>
+    <td>{{ dokter.nama_dokter }}</td>
+    <td>{{ dokter.kuota }}</td>
+    <td>
+        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-{{ dokter.id_dokter }}">
+            Update Kuota
+        </button>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="modal-{{ dokter.id_dokter }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Kuota {{ dokter.nama_dokter }}</h5>
+                    </div>
+                    <form method="post" action="{% url 'update_kuota:update_kuota' dokter.id_dokter %}">
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="kuota-{{ dokter.id_dokter }}">Kuota:</label>
+                                <input type="number" class="form-control" id="kuota-{{ dokter.id_dokter }}" 
+                                       name="kuota" value="{{ dokter.kuota }}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+{% endfor %}
