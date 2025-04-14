@@ -4,6 +4,7 @@ from book_konsultasi.models import JadwalKonsultasi, Dokter, RumahSakit
 from django.contrib import messages
 from django.urls import reverse
 from beli_obat.views import validate_jwt_and_get_user
+from django.db import transaction
 
 def list_dokter(request):
     token = request.COOKIES.get('jwt')
@@ -15,7 +16,8 @@ def list_dokter(request):
         if user and not error:
             is_superuser = user.is_superuser
     
-    jadwals = JadwalKonsultasi.objects.select_related('dokter__rumah_sakit').order_by('dokter__rumah_sakit__nama_rumah_sakit')
+    jadwals = JadwalKonsultasi.objects.select_related('dokter__rumah_sakit') \
+            .order_by('dokter__rumah_sakit__nama_rumah_sakit', 'dokter__nama_dokter')  # Tambahkan urutkan berdasarkan nama dokter jika perlu
 
     dokter_by_rs = defaultdict(list)
 
@@ -29,6 +31,7 @@ def list_dokter(request):
     }
     return render(request, 'list_dokter.html', context)
 
+@transaction.atomic
 def update_kuota(request, id_dokter):
     token = request.COOKIES.get('jwt')
 
