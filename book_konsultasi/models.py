@@ -20,7 +20,7 @@ class Dokter(models.Model):
 
 class JadwalKonsultasi(models.Model):
     id_jdwl_konsultasi = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, null=False, blank=False, db_index=True)
-    dokter = models.ForeignKey(Dokter, on_delete=models.CASCADE, related_name='jadwal_konsultasi')
+    dokter = models.OneToOneField(Dokter, on_delete=models.CASCADE, related_name='jadwal_konsultasi')
     hari = models.CharField(max_length=10)
     jam_mulai = models.TimeField()
     jam_selesai = models.TimeField()
