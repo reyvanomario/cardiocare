@@ -25,7 +25,7 @@ def list_dokter(request):
 
     context = {
         'dokter_by_rs': dict(dokter_by_rs),
-        'user': user
+        'is_superuser': is_superuser
     }
     return render(request, 'list_dokter.html', context)
 
