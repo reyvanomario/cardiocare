@@ -166,24 +166,25 @@
     
     <!-- Doctor List -->
     <div class="doctor-section">
-        <h1 class="mb-4 fade-in">Daftar Dokter</h1>
+        {% for rumah_sakit, jadwal_list in dokter_by_rs.items %}
+        <h2 class="mt-4">Rumah Sakit: {{ rumah_sakit.nama_rumah_sakit }}</h2>
         
         <div class="row">
-            {% for dokter in dokter_list %}
+            {% for jadwal in jadwal_list %}
             <div class="col-md-6 col-lg-4 fade-in delay-{{ forloop.counter }}">
                 <div class="doctor-card">
                     <div class="doctor-header text-center">
                         <br><br>
-                        <h3 class="doctor-name">{{ dokter.nama_dokter }}</h3>
+                        <h3 class="doctor-name">{{ jadwal.dokter.nama_dokter }}</h3>
                     </div>
                     <div class="doctor-body">
                         <div class="doctor-quota">
-                            Kuota tersedia: <span class="quota-value">{{ dokter.kuota }}</span> pasien/hari
+                            Kuota tersedia: <span class="quota-value">{{ jadwal.kuota }}</span> pasien/hari
                         </div>
                         <button type="button" 
                                 class="btn btn-update btn-doctor" 
                                 data-bs-toggle="modal" 
-                                data-bs-target="#updateModal{{ dokter.id_dokter }}">
+                                data-bs-target="#updateModal{{ jadwal.id }}">
                             Update Kuota
                         </button>
                     </div>
@@ -191,40 +192,43 @@
             </div>
             {% endfor %}
         </div>
+        {% endfor %}
     </div>
 </div>
 
 <!-- Modal for Each Doctor -->
-{% for dokter in dokter_list %}
-<div class="modal fade" id="updateModal{{ dokter.id_dokter }}" tabindex="-1" aria-labelledby="updateModalLabel{{ dokter.id_dokter }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="updateModalLabel{{ dokter.id_dokter }}">Update Kuota Dr. {{ dokter.nama_dokter }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" action="{% url 'update_kuota:update_kuota' dokter.id_dokter %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="kuota{{ dokter.id_dokter }}" class="form-label">Kuota Pasien per Hari</label>
-                        <input type="number" 
-                               class="form-control" 
-                               id="kuota{{ dokter.id_dokter }}" 
-                               name="kuota" 
-                               value="{{ dokter.kuota }}"
-                               min="1"
-                               required>
+{% for rumah_sakit, jadwal_list in dokter_by_rs.items %}
+    {% for jadwal in jadwal_list %}
+    <div class="modal fade" id="updateModal{{ jadwal.id }}" tabindex="-1" aria-labelledby="updateModalLabel{{ jadwal.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel{{ jadwal.id }}">Update Kuota Dr. {{ jadwal.dokter.nama_dokter }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'update_kuota:update_kuota' jadwal.dokter.id_dokter %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="kuota{{ jadwal.id }}" class="form-label">Kuota Pasien per Hari</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="kuota{{ jadwal.id }}" 
+                                   name="kuota" 
+                                   value="{{ jadwal.kuota }}"
+                                   min="1"
+                                   required>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-update">Simpan Perubahan</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-update">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+    {% endfor %}
 {% endfor %}
 {% endblock %}
 

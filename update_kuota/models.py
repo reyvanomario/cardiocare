@@ -1,10 +1,9 @@
 from django.db import models
 import uuid
+from book_konsultasi.models import RumahSakit
 
-class Dokter(models.Model):
-    id_dokter = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, null=False, blank=False, db_index=True)
+class JadwalKonsultasi(models.Model):
+    rumah_sakit = models.ForeignKey(RumahSakit, on_delete=models.CASCADE)
+    id_dokter = models.UUIDField()
     nama_dokter = models.CharField(max_length=100)
     kuota = models.PositiveIntegerField()
-    
-    def __str__(self):
-        return f"{self.nama_dokter} (Kuota: {self.kuota})"

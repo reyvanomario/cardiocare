@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'main',
     'beli_obat',
-    'update_kuota'
+    'update_kuota',
+    'book_konsultasi'
 ]
 
 MIDDLEWARE = [
