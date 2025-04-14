@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ article.title }}</title>
+<style>
+    .heart-article {
+        font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.7;
+        color: #333;
+    }
+    .article-title {
+        color: #c62828;
+        font-size: 2.2rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .article-meta {
+        color: #e53935;
+        font-weight: 500;
+    }
+    .article-divider {
+        border-color: #ffcdd2;
+    }
+    .article-image {
+        border: 3px solid #ffebee;
+        box-shadow: 0 4px 8px rgba(198,40,40,0.1);
+    }
+    .section-red {
+        background-color: #ffebee;
+        border-left: 4px solid #ef5350;
+    }
+    .section-white {
+        background-color: white;
+        border-left: 4px solid #c62828;
+    }
+    .section-title {
+        color: #b71c1c;
+        font-size: 1.5rem;
+    }
+    .highlight-red {
+        color: #c62828;
+        font-weight: 600;
+    }
+    .content-list {
+        padding-left: 1.5rem;
+    }
+    .content-list li {
+        margin-bottom: 0.5rem;
+    }
+    .article-footer {
+        border-top: 1px dashed #ef9a9a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8 px-4 heart-article">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-4 text-center">
+            <h1 class="article-title">"{{ article.title }}"</h1>
+            <div class="flex justify-between items-center mt-4 article-meta">
+                <span class="text-sm"><strong>{{ article.author }}</strong></span>
+                <span class="text-sm">{{ article.publish_date|date:"j F Y" }}</span>
+            </div>
+            <div class="my-4 border-b-2 border-{{ article.primary_color }}"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-4">
+            {{ article.content|linebreaks }}
+            
+            {% for section in sections %}
+            <div class="p-6 rounded-lg mb-6 section-{{ section.section_type }}">
+                {% if section.title %}<h2 class="text-xl font-bold mb-4">{{ section.title }}</h2>{% endif %}
+                
+                {% if section.has_list %}
+                <ul class="list-disc pl-6 mb-4">
+                    {{ section.content|linebreaks }}
+                </ul>
+                {% elif section.has_highlight %}
+                <div class="space-y-4">
+                    {{ section.content|linebreaks }}
+                </div>
+                {% else %}
+                <div class="text-justify">
+                    {{ section.content|linebreaks }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div class="mt-8 pt-4 border-t-2 border-{{ article.primary_color }}">
+                <p class="text-sm text-gray-600">
+                    Sumber: <a href="{{ article.source_url }}" target="_blank" class="text-{{ article.primary_color }} hover:underline">{{ article.source_url }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

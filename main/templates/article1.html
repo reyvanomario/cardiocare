@@ -47,11 +47,24 @@
     .article-footer {
         border-top: 1px dashed #ef9a9a;
     }
+    /* Add styles for the back to home link */
+    .back-to-home {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #c62828;
+        color: white;
+        font-size: 1rem;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .back-to-home:hover {
+        background-color: #b71c1c;
+    }
 </style>
-{% endblock meta %}
 
 {% block content %}
-{% include 'navbar.html' %}
 
 <div class="container mx-auto mt-8 px-4 heart-article">
     <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
@@ -161,6 +174,9 @@
                     <strong><em>Source : https://ayosehat.kemkes.go.id/cara-menjaga-kesehatan-jantung</em></strong>
                 </p>
             </div>
+
         </div>
     </div>
 </div>
+
+{% endblock %}
