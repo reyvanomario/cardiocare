@@ -181,12 +181,14 @@
                         <div class="doctor-quota">
                             Kuota tersedia: <span class="quota-value">{{ jadwal.kuota }}</span> pasien/hari
                         </div>
+                        {% if is_superuser %}
                         <button type="button" 
                                 class="btn btn-update btn-doctor" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#updateModal-{{ jadwal.dokter.id_dokter }}-{{ jadwal.id }}">
                             Update Kuota
                         </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -196,6 +198,7 @@
     </div>
 </div>
 
+{% if is_superuser %}
 <!-- Modal for Each Doctor -->
 {% for rumah_sakit, jadwal_list in dokter_by_rs.items %}
     {% for jadwal in jadwal_list %}
@@ -235,6 +238,7 @@
     </div>
     {% endfor %}
 {% endfor %}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
