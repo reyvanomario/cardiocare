@@ -21,5 +21,19 @@ def home(request):
 
         return render(request, 'home.html', context)
     
+
+
+def article1(request):
+    return render(request, 'article1.html')
+def article2(request):
+    return render(request, 'article2.html')
+def article3(request):
+    return render(request, 'article3.html')
+def article4(request):
+    return render(request, 'article4.html')
+def article5(request):
+    return render(request, 'article5.html')
+
+    
     
     

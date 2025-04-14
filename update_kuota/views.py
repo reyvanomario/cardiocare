@@ -1,5 +1,5 @@
 from collections import defaultdict
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from book_konsultasi.models import JadwalKonsultasi, Dokter, RumahSakit
 from django.contrib import messages
@@ -57,7 +57,7 @@ def update_kuota(request, id_dokter):
         return error
     
     if user['is_admin'] == False:
-        return HttpResponseForbidden("Token tidak valid. Silakan login.")
+        return HttpResponseForbidden("Anda bukan admin.")
         
     jadwal = get_object_or_404(JadwalKonsultasi, dokter__id_dokter=id_dokter)
 
@@ -65,10 +65,13 @@ def update_kuota(request, id_dokter):
         new_kuota = request.POST.get('kuota')
         if new_kuota and new_kuota.isdigit():
             kuota_int = int(new_kuota)
-            if kuota_int >= 0:
+            if kuota_int >= 0 and kuota_int < 200:
                 jadwal.kuota = kuota_int
                 jadwal.save()
                 messages.success(request, f"Kuota untuk Dr. {jadwal.dokter.nama_dokter} berhasil diperbarui.")
         return redirect(reverse('update_kuota:list_dokter'))
 
     return redirect(reverse('update_kuota:list_dokter'))
+
+
+
