@@ -14,4 +14,6 @@ urlpatterns = [
     path('', include('main.urls')),
     path('beli-obat/', include('beli_obat.urls')),
     path('cari-konsultasi/', include('book_konsultasi.urls', namespace='book_konsultasi')),
+    path('kuota/', include('update_kuota.urls')),
+
 ]
