@@ -15,8 +15,7 @@ def list_dokter(request):
         if user and not error:
             is_superuser = user.is_superuser
     
-    jadwals = JadwalKonsultasi.objects.select_related('dokter__rumah_sakit') \
-            .order_by('dokter__rumah_sakit__nama_rumah_sakit', 'dokter__nama_dokter')  # Tambahkan urutkan berdasarkan nama dokter jika perlu
+    jadwals = JadwalKonsultasi.objects.select_related('dokter__rumah_sakit').order_by('dokter__rumah_sakit__nama_rumah_sakit')
 
     dokter_by_rs = defaultdict(list)
 
@@ -30,7 +29,6 @@ def list_dokter(request):
     }
     return render(request, 'list_dokter.html', context)
 
-@transaction.atomic
 def update_kuota(request, id_dokter):
     token = request.COOKIES.get('jwt')
 
