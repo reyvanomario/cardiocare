@@ -4,7 +4,6 @@ from book_konsultasi.models import JadwalKonsultasi, Dokter, RumahSakit
 from django.contrib import messages
 from django.urls import reverse
 from beli_obat.views import validate_jwt_and_get_user
-from django.db import transaction
 
 def list_dokter(request):
     token = request.COOKIES.get('jwt')
