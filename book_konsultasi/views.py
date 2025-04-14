@@ -17,9 +17,7 @@ from .rate_limiting import RateLimitMixin
 from uuid import UUID
 import logging
 from django.db import transaction
-from django.http import JsonResponse
-import os
-import csv
+from django.http import JsonResponse, HttpResponseRedirect
 import jwt
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -117,7 +115,7 @@ def list_rumah_sakit(request):
         if query:
             rumah_sakit_list = rumah_sakit_list.filter(nama_rumah_sakit__icontains=query)
         
-        paginator = Paginator(rumah_sakit_list, 8)
+        paginator = Paginator(rumah_sakit_list, 8) 
         
         try:
             rumah_sakit_page = paginator.page(page)
@@ -147,7 +145,7 @@ def list_rumah_sakit(request):
         
         context = {
             'rumah_sakit_list': rumah_sakit_page,
-            'query': query,
+            'query': query,  
         }
         
         return render(request, 'list_rumah_sakit.html', context)
@@ -201,9 +199,9 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
     rate = '10/m'
 
     def get_user_from_jwt(self, request):
-        token = request.COOKIES.get('jwt') or request.headers.get('Authorization', '').replace('Bearer ', '')
+        token = request.COOKIES.get('jwt')
         
-        if not token:
+        if token is None:
             return None
             
         try:
@@ -253,11 +251,14 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
         user_data = self.get_user_from_jwt(request)
         
         if not user_data:
+            next_url = request.build_absolute_uri()
+            login_url = f"http://localhost:3000/login/?next={next_url}"
+            
             return Response(
-                {"error": "Authentication required"}, 
+                {"error": "Authentication required", "redirect": login_url}, 
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
+        
         try:
             jadwal_id = id_jadwal or request.data.get('jadwal')
             if not jadwal_id:
@@ -301,7 +302,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
 
                 jadwal.kuota = F('kuota') - 1
                 jadwal.save()
-                jadwal.refresh_from_db()
+                jadwal.refresh_from_db()  
                 
                 if jadwal.kuota < 0:
                     transaction.set_rollback(True)
@@ -322,7 +323,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
                 {"error": "Terjadi kesalahan. Silakan coba lagi nanti."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
+        
 class KonsultasiSayaView(APIView):
     def get(self, request):
         jwt_token = request.COOKIES.get('jwt')
@@ -347,7 +348,7 @@ class KonsultasiSayaView(APIView):
                 raise jwt.InvalidTokenError("Token tidak valid")
             
             bookings = BookKonsultasi.objects.filter(id_pasien=user_id).select_related('jadwal')
-            
+
             bookings_data = []
             for booking in bookings:
                 bookings_data.append({
@@ -375,37 +376,3 @@ class KonsultasiSayaView(APIView):
                 return Response({"error": f"Token tidak valid: {str(e)}"}, status=401)
             else:
                 return render(request, 'bookings.html', {'error_message': 'Token tidak valid, silakan login kembali'})
-            
-logger = logging.getLogger(__name__)
-
-@method_decorator(csrf_protect, name='dispatch')
-class CheckAuthStatusView(APIView):
-    permission_classes = []
-    
-    def validate_jwt(self, request):
-        token = request.COOKIES.get('jwt')
-        
-        if not token:
-            return False
-            
-        try:
-            with open('public.pem', 'rb') as f:
-                public_key = serialization.load_pem_public_key(
-                    f.read(),
-                    backend=default_backend()
-                )
-            
-            jwt.decode(token, public_key, algorithms=['RS256'])
-            
-            return True
-        except Exception as e:
-            logger.error(f"JWT authentication error: {str(e)}")
-            return False
-
-    def get(self, request, *args, **kwargs):
-        is_authenticated = self.validate_jwt(request)
-        print(is_authenticated)
-        
-        return Response({
-            "isAuthenticated": is_authenticated
-        }, status=status.HTTP_200_OK)

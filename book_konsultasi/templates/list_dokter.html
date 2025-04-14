@@ -396,6 +396,26 @@
         width: 100%;
     }
     
+    /* Success message styling */
+    .success-message {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1100;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .container {
@@ -466,9 +486,9 @@
                     </div>
                 </div>
                 <div class="dokter-actions">
-                    <a href="/cari-konsultasi/book-konsultasi/{{ dokter.jadwal.id_jdwl_konsultasi }}/" class="btn btn-book">
+                    <button class="btn btn-book" data-jadwal-id="{{ dokter.jadwal.id_jdwl_konsultasi }}">
                         <i class="fa fa-calendar-check-o"></i> Book
-                    </a>
+                    </button>
                 </div>
             </div>
             {% endfor %}
@@ -518,204 +538,32 @@
                 </div>
                 
                 <div class="dokter-profile-actions">
-                    <a href="#" class="btn btn-book" id="detail-book-btn">
+                    <button class="btn btn-book" id="detail-book-btn">
                         <i class="fa fa-calendar-check-o"></i> Book
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Include only the booking confirmation and receipt modals -->
-{% include 'booking_confirmation_modal.html' %}
-{% include 'booking_receipt_modal.html' %}
+<!-- Success Message Notification -->
+<div id="success-message" class="success-message">
+    <i class="fa fa-check-circle"></i> Konsultasi berhasil dipesan!
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>    
     document.addEventListener('DOMContentLoaded', function () {
-        function safeText(text) {
-            return text || 'Tidak tersedia';
-        }
-
         const dokterCards = document.querySelectorAll('.dokter-card');
         const dokterListContainer = document.getElementById('dokter-list-container');
         const dokterDetailContainer = document.getElementById('dokter-detail-container');
         const backButton = document.getElementById('back-to-list');
         const detailBookBtn = document.getElementById('detail-book-btn');
-        const confirmationModal = document.getElementById('bookingConfirmationModal');
-        const receiptModal = document.getElementById('bookingReceiptModal');
-        const confirmBookingBtn = document.getElementById('confirm-booking-btn');
+        const successMessage = document.getElementById('success-message');
         const loginUrl = "http://localhost:3000/login/";
-
-        let isAuthenticated = false;
-
-        function checkAuthStatus() {
-            return fetch('/cari-konsultasi/check-jwt/', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
-                isAuthenticated = data.isAuthenticated;
-                console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
-                return data;
-            })
-            .catch(error => {
-                console.error("Error checking auth status:", error);
-                isAuthenticated = false;
-                return { isAuthenticated: false };
-            });
-        }
-
-        checkAuthStatus().then(() => {
-            updateBookingLinks();
-        });
-
-        function updateBookingLinks() {
-            const bookButtons = document.querySelectorAll('.btn-book');
-            
-            bookButtons.forEach(button => {
-                const parent = button.closest('.dokter-card');
-                
-                if (parent) {
-                    const dokterId = parent.getAttribute('data-dokter-id');
-                    const jadwalId = parent.getAttribute('data-jadwal-id');
-                    
-                    button.onclick = function(event) {
-                        event.preventDefault();
-                        handleBookingClick(this, dokterId, jadwalId);
-                    };
-                }
-            });
-            
-            if (detailBookBtn) {
-                detailBookBtn.onclick = function(event) {
-                    event.preventDefault();
-                    const jadwalId = this.getAttribute('data-jadwal-id');
-                    const dokterId = this.getAttribute('data-dokter-id');
-                    handleBookingClick(this, dokterId, jadwalId);
-                };
-            }
-        }
-        
-        function handleBookingClick(button, dokterId, jadwalId) {
-            checkAuthStatus().then(data => {
-                if (!data.isAuthenticated) {
-                    window.location.href = `${loginUrl}?next=${encodeURIComponent(window.location.pathname)}&dokter_id=${dokterId}&jadwal_id=${jadwalId}`;
-                    return;
-                }
-                
-                showBookingConfirmation(button, dokterId, jadwalId);
-            });
-        }
-        
-        function showBookingConfirmation(button, dokterId, jadwalId) {
-            let dokterName, dokterJadwal, rumahSakit;
-            const parent = button.closest('.dokter-card');
-            
-            if (parent) {
-                dokterName = parent.getAttribute('data-dokter-name');
-                dokterJadwal = parent.getAttribute('data-dokter-jadwal');
-                rumahSakit = parent.getAttribute('data-rumah-sakit');
-            } else {
-                dokterName = document.getElementById('detail-dokter-name').textContent;
-                dokterJadwal = document.getElementById('detail-dokter-jadwal').textContent;
-                rumahSakit = "{{ rumah_sakit.nama_rumah_sakit }}";
-            }
-            
-            const bookingData = {
-                dokterName: dokterName,
-                dokterJadwal: dokterJadwal,
-                rumahSakit: rumahSakit,
-                jadwalId: jadwalId
-            };
-            
-            const confirmBtn = document.getElementById('confirm-booking-btn');
-            confirmBtn.setAttribute('data-booking-info', JSON.stringify(bookingData));
-            confirmBtn.setAttribute('data-jadwal-id', jadwalId);
-            
-            document.getElementById('confirm-dokter-name').textContent = dokterName;
-            document.getElementById('confirm-dokter-jadwal').textContent = dokterJadwal;
-            document.getElementById('confirm-rumah-sakit').textContent = rumahSakit;
-            
-            confirmationModal.classList.add('active');
-        }
-        if (confirmBookingBtn) {
-            confirmBookingBtn.addEventListener('click', function() {
-                const jadwalId = this.getAttribute('data-jadwal-id');
-                const bookingInfo = JSON.parse(this.getAttribute('data-booking-info') || '{}');
-                
-                checkAuthStatus().then(data => {
-                    if (!data.isAuthenticated) {
-                        closeConfirmationModal();
-                        alert('Sesi login anda telah berakhir. Silahkan login kembali.');
-                        return;
-                    }
-                    
-                    this.disabled = true;
-                    this.textContent = 'Memproses...';
-                    
-                    fetch(`/cari-konsultasi/book-konsultasi/${jadwalId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({
-                            jadwal: jadwalId
-                        })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        confirmBookingBtn.disabled = false;
-                        confirmBookingBtn.textContent = 'Konfirmasi';
-                        
-                        console.log("Response data:", data);
-                        
-                        if (data.error) {
-                            alert(data.error);
-                            closeConfirmationModal();
-                        } else {
-                            closeConfirmationModal();
-                            
-                            const bookingId = data.data && data.data.id_book_konsultasi ? 
-                                            data.data.id_book_konsultasi : 
-                                            'Generated';
-                            
-                            document.getElementById('receipt-booking-id').textContent = bookingId;
-                            document.getElementById('receipt-dokter-name').textContent = safeText(bookingInfo.dokterName);
-                            document.getElementById('receipt-dokter-jadwal').textContent = safeText(bookingInfo.dokterJadwal);
-                            document.getElementById('receipt-rumah-sakit').textContent = safeText(bookingInfo.rumahSakit);
-                            document.getElementById('receipt-tanggal').textContent = new Date().toLocaleDateString('id-ID');
-                            
-            
-                            setTimeout(() => {
-                                receiptModal.classList.add('active');
-                            }, 300);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat melakukan booking. Silakan coba lagi.');
-                        confirmBookingBtn.disabled = false;
-                        confirmBookingBtn.textContent = 'Konfirmasi';
-                        closeConfirmationModal();
-                    });
-                });
-            });
-        }
         
         function getCookie(name) {
             let cookieValue = null;
@@ -731,18 +579,139 @@
             }
             return cookieValue;
         }
+
+        function showSuccessMessage() {
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        dokterCards.forEach(card => {
+            card.addEventListener('click', function(event) {
+                if (event.target.closest('.btn-book')) {
+                    return;
+                }
+                
+                const dokterId = this.getAttribute('data-dokter-id');
+                const dokterName = this.getAttribute('data-dokter-name');
+                const dokterJadwal = this.getAttribute('data-dokter-jadwal');
+                const jadwalId = this.getAttribute('data-jadwal-id');
+                
+                document.getElementById('detail-dokter-name').textContent = dokterName;
+                document.getElementById('detail-dokter-jadwal').textContent = dokterJadwal;
+                
+                document.getElementById('detail-book-btn').setAttribute('data-jadwal-id', jadwalId);
+                
+                dokterListContainer.style.display = 'none';
+                dokterDetailContainer.style.display = 'block';
+            });
+        });
+
+        function setupBookingButtons() {
+            const bookButtons = document.querySelectorAll('.btn-book');
+            
+            bookButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const jadwalId = this.getAttribute('data-jadwal-id') || 
+                                    this.closest('.dokter-card')?.getAttribute('data-jadwal-id');
+                    
+                    if (!jadwalId) {
+                        console.error('No jadwal ID found');
+                        return;
+                    }
+                    
+                    bookConsultation(jadwalId);
+                });
+            });
+        }
+        
+        function bookConsultation(jadwalId) {
+            const currentUrl = window.location.href;
+            
+            fetch(`/cari-konsultasi/book-konsultasi/${jadwalId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    jadwal: jadwalId,
+                    next_url: currentUrl
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    return response.json().then(data => {
+                        window.location.href = data.redirect || 
+                            `${loginUrl}?next=${encodeURIComponent(currentUrl)}`;
+                        throw new Error('Authentication required');
+                    });
+                }
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    showSuccessMessage();
+                    
+                    updateQuotaDisplay(jadwalId);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (error.message !== 'Authentication required') {
+                    alert(error.message || 'Terjadi kesalahan saat melakukan booking. Silakan coba lagi.');
+                }
+            });
+        }
+        
+        function updateQuotaDisplay(jadwalId) {
+            const dokterCard = document.querySelector(`.dokter-card[data-jadwal-id="${jadwalId}"]`);
+            if (dokterCard) {
+                const quotaElement = dokterCard.querySelector('.dokter-quota');
+                const badgeElement = dokterCard.querySelector('.badge');
+                
+                if (quotaElement) {
+                    const currentQuota = parseInt(quotaElement.textContent.replace('Kuota: ', '')) - 1;
+                    quotaElement.textContent = `Kuota: ${currentQuota}`;
+                    
+                    if (currentQuota <= 0 && badgeElement) {
+                        badgeElement.className = 'badge badge-busy';
+                        badgeElement.textContent = 'Penuh';
+                    }
+                }
+            }
+        }
+        if (backButton) {
+            backButton.addEventListener('click', function() {
+                dokterDetailContainer.style.display = 'none';
+                dokterListContainer.style.display = 'block';
+            });
+        }
+        
+        setupBookingButtons();
+
+        if (detailBookBtn) {
+            detailBookBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                const jadwalId = this.getAttribute('data-jadwal-id');
+                
+                if (jadwalId) {
+                    bookConsultation(jadwalId);
+                }
+            });
+        }
     });
-    function closeConfirmationModal() {
-        const confirmationModal = document.getElementById('bookingConfirmationModal');
-        if (confirmationModal) {
-            confirmationModal.classList.remove('active');
-        }
-    }
-    function closeReceiptModal() {
-        const receiptModal = document.getElementById('bookingReceiptModal');
-        if (receiptModal) {
-            receiptModal.classList.remove('active');
-        }
-    }
 </script>
 {% endblock %}
