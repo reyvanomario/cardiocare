@@ -60,7 +60,7 @@ def validate_uuid(uuid_value):
             return False
     return False
 
-
+@csrf_protect
 @require_http_methods(["GET"])
 def list_dokter(request, id_rumah_sakit):
     if not validate_uuid(id_rumah_sakit):
@@ -89,7 +89,7 @@ def list_dokter(request, id_rumah_sakit):
                 'dokter': dokter_with_jadwal,
                 'rumah_sakit': rumah_sakit,
             }
-            return render(request, 'list_dokter.html', context)
+            return render(request, 'list_dokter_atha.html', context)
         else:
             messages.error(request, f'Tidak ada dokter yang ditemukan di rumah sakit "{rumah_sakit.nama_rumah_sakit}".')
             return redirect('book_konsultasi:list_rumah_sakit')
@@ -98,7 +98,7 @@ def list_dokter(request, id_rumah_sakit):
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return redirect('book_konsultasi:list_rumah_sakit')
 
-
+@csrf_protect
 @require_http_methods(["GET"])
 def list_rumah_sakit(request):
     try:
@@ -155,7 +155,7 @@ def list_rumah_sakit(request):
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return render(request, 'list_rumah_sakit.html', {'rumah_sakit_list': [], 'query': ''})
 
-
+@csrf_protect
 @require_http_methods(["GET"])
 def view_dokter(request, id_dokter):
     try:
@@ -168,13 +168,13 @@ def view_dokter(request, id_dokter):
         context = {
             'dokter': dokter,
         }
-        return render(request, 'view_dokter.html', context)
+        return render(request, 'list_dokter_atha.html', context)
     except Exception as e:
         logger.error(f"Error in view_dokter: {str(e)}")
         messages.error(request, 'Terjadi kesalahan. Silakan coba lagi nanti.')
         return redirect('book_konsultasi:list_rumah_sakit')
     
-
+@csrf_protect
 @require_http_methods(["GET"])
 def view_rumah_sakit(request, id_rumah_sakit):
     try:
