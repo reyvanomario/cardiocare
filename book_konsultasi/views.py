@@ -18,6 +18,7 @@ from uuid import UUID
 import logging
 from django.db import transaction
 from django.http import JsonResponse, HttpResponseRedirect
+import requests
 import jwt
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -205,11 +206,9 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
             return None
             
         try:
-            with open('public.pem', 'rb') as f:
-                public_key = serialization.load_pem_public_key(
-                    f.read(),
-                    backend=default_backend()
-                )
+            public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+            public_key_response.raise_for_status()
+            public_key = public_key_response.json()['public_key']
             
             payload = jwt.decode(token, public_key, algorithms=['RS256'])
             user_id = payload.get('id')
@@ -335,11 +334,9 @@ class KonsultasiSayaView(APIView):
                 return render(request, 'bookings.html', {'error_message': 'Anda belum login'})
         
         try:
-            with open('public.pem', 'rb') as f:
-                public_key = serialization.load_pem_public_key(
-                    f.read(),
-                    backend=default_backend()
-                )
+            public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+            public_key_response.raise_for_status()
+            public_key = public_key_response.json()['public_key']
             
             payload = jwt.decode(jwt_token, public_key, algorithms=['RS256'])
             user_id = payload.get('id')
