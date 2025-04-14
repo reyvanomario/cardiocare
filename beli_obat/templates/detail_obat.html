@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ obat.nama_obat }} - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-red: #9e1a1a;
+        --secondary-red: #8c1616;
+        --dark-red: #7a0e0e;
+        --light-red: #f8e9e9;
+        --accent-gold: #d4af37;
+        --dark-text: #333;
+        --light-text: #f8f8f8;
+        --soft-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-red);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--dark-red);
+    }
+
+    .product-section {
+        padding: 2rem 0;
+    }
+
+    .product-icon {
+        background: var(--primary-red);
+        color: white;
+        height: 300px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+    }
+
+    .product-letter {
+        font-size: 6rem;
+        font-weight: 800;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .product-icon-bg {
+        position: absolute;
+        opacity: 0.1;
+        font-size: 12rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .product-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+    }
+
+    .product-price {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-red);
+        margin-bottom: 1.5rem;
+    }
+
+    .product-info {
+        margin-bottom: 2rem;
+    }
+
+    .product-info-label {
+        font-weight: 700;
+        color: var(--dark-text);
+    }
+
+    .btn-product {
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border-radius: 4px;
+    }
+
+    .btn-back {
+        background: transparent;
+        color: var(--primary-red);
+        border: 1px solid var(--primary-red);
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--light-red);
+        color: var(--dark-red);
+        border-color: var(--dark-red);
+    }
+
+    .btn-cart-large {
+        background: var(--primary-red);
+        border: none;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-cart-large:hover {
+        background: var(--dark-red);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(158, 26, 26, 0.2);
+    }
+
+    .btn-cart-large:active {
+        transform: translateY(0);
+    }
+
+    .stok-indicator {
+        margin-bottom: 1.5rem;
+    }
+
+    .in-stock {
+        color: #28a745;
+    }
+
+    .out-of-stock {
+        color: #dc3545;
+    }
+
+    .detail-card {
+        background: var(--light-red);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary-red);
+    }
+
+    .detail-card-title {
+        font-weight: 700;
+        color: var(--primary-red);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'beli_obat:katalog_obat' %}">Katalog Obat</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ obat.nama_obat }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Product Detail -->
+    <div class="product-section">
+        <div class="row">
+            <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="product-icon">
+                    <h1 class="product-letter">{{ obat.nama_obat|slice:":1" }}</h1>
+                    {% if 'anti' in obat.nama_obat.lower %}
+                        <i class="bi bi-shield-plus product-icon-bg"></i>
+                    {% elif 'cardiac' in obat.nama_obat.lower or 'cardio' in obat.nama_obat.lower %}
+                        <i class="bi bi-heart-pulse product-icon-bg"></i>
+                    {% elif 'vitamin' in obat.nama_obat.lower %}
+                        <i class="bi bi-droplet product-icon-bg"></i>
+                    {% else %}
+                        <i class="bi bi-capsule product-icon-bg"></i>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-7">
+                <h1 class="product-title fade-in">{{ obat.nama_obat }}</h1>
+                <p class="product-price fade-in">Rp {{ obat.harga|floatformat:0|stringformat:"s"|slice:":-3" }}.{{ obat.harga|floatformat:0|stringformat:"s"|slice:"-3:" }}</p>
+                
+                <div class="stok-indicator fade-in">
+                    {% if obat.stok > 0 %}
+                        <span class="in-stock"><i class="bi bi-check-circle me-1"></i> Stok Tersedia ({{ obat.stok }} item)</span>
+                    {% else %}
+                        <span class="out-of-stock"><i class="bi bi-x-circle me-1"></i> Stok Habis</span>
+                    {% endif %}
+                </div>
+                
+                <div class="product-info fade-in">
+                    <p>{{ obat.deskripsi }}</p>
+                </div>
+                
+                <div class="detail-card fade-in">
+                    <h5 class="detail-card-title"><i class="bi bi-clipboard-check me-2"></i>Aturan Pakai</h5>
+                    
+                    {% if obat.aturan_pakai %}
+                        <p class="mb-0">{{ obat.aturan_pakai }}</p>
+                    {% else %}
+                        <p class="mb-0 text-muted">Tidak ada informasi aturan pakai</p>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex gap-3 fade-in">
+                    <a href="{% url 'beli_obat:katalog_obat' %}" class="btn btn-back btn-product">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali
+                    </a>
+                    {% if obat.stok > 0 %}
+                    <button class="btn btn-cart-large btn-product pulse-animation">
+                        <i class="bi bi-cart-plus me-1"></i> Tambahkan ke Keranjang
+                    </button>
+                    {% else %}
+                    <button class="btn btn-secondary btn-product" disabled>
+                        <i class="bi bi-x-circle me-1"></i> Stok Habis
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informasi Tambahan -->
+    <div class="mt-5 fade-in">
+        <div class="alert alert-info">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4><i class="bi bi-info-circle me-2"></i>Informasi Penting</h4>
+                    <ul>
+                        <li>Simpan pada suhu ruangan (15-30°C)</li>
+                        <li>Jauhkan dari paparan sinar matahari langsung</li>
+                        <li>Jauhkan dari jangkauan anak-anak</li>
+                        <li>Hanya untuk digunakan sesuai petunjuk dokter</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4><i class="bi bi-exclamation-triangle me-2"></i>Peringatan</h4>
+                    <p>Jika mengalami efek samping yang serius, segera hentikan penggunaan dan konsultasikan dengan dokter.</p>
+                    <p>Tidak untuk digunakan oleh wanita hamil dan menyusui tanpa pengawasan dokter.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add fade-in class to elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        setTimeout(() => {
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }, 100);
+    });
+</script>
+{% endblock %}
