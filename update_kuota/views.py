@@ -55,7 +55,7 @@ def update_kuota(request, id_dokter):
         new_kuota = request.POST.get('kuota')
         if new_kuota and new_kuota.isdigit():
             kuota_int = int(new_kuota)
-            if kuota_int >= 0:
+            if kuota_int >= 0 and kuota_int < 200:
                 jadwal.kuota = kuota_int
                 jadwal.save()
                 messages.success(request, f"Kuota untuk Dr. {jadwal.dokter.nama_dokter} berhasil diperbarui.")
