@@ -70,9 +70,9 @@ def validate_jwt_and_get_user(token):
         try:
             payload = jwt.decode(token_bytes, public_key, algorithms=['RS256'])
         except jwt.ExpiredSignatureError:
-            return HttpResponseForbidden("Token telah kedaluwarsa. Silakan login kembali.")
+            return None, HttpResponseForbidden("Token telah kedaluwarsa. Silakan login kembali.")
         except jwt.InvalidTokenError:
-            return HttpResponseForbidden("Token tidak valid. Silakan login.")
+            return None, HttpResponseForbidden("Token tidak valid. Silakan login.")
 
         # 3. Cek user 
         try:
