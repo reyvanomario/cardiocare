@@ -36,7 +36,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const loginForm = document.getElementById('loginForm');
-        const otpVerifyForm = document.getElementById('otpVerifyForm');
         const loginError = document.getElementById('loginError');
         
         loginForm.addEventListener('submit', function(e) {
@@ -51,7 +50,7 @@
                 return;
             }
             
-            fetch('http://localhost:8001/api/login-otp/', { 
+            fetch('/api/login/', { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,154 +93,6 @@
                 loginError.style.display = 'block';
             });
         });
-        const otpInputs = document.querySelectorAll('.otp-input');
-        
-        otpInputs.forEach((input, index) => {
-            input.addEventListener('keypress', function(e) {
-                if (isNaN(e.key) || e.key === ' ') {
-                    e.preventDefault();
-                }
-            });
-            
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const pastedText = e.clipboardData.getData('text');
-                if (!/^\d+$/.test(pastedText)) return;
-                
-                for (let i = 0; i < pastedText.length && i + index < otpInputs.length; i++) {
-                    otpInputs[i + index].value = pastedText[i];
-                    if (i + index < otpInputs.length - 1) {
-                        otpInputs[i + index + 1].focus();
-                    }
-                }
-            });
-
-            input.addEventListener('input', function(e) {
-                if (e.target.value.length === 1) {
-                    if (index < otpInputs.length - 1) {
-                        otpInputs[index + 1].focus();
-                    } else {
-                        let allFilled = true;
-                        otpInputs.forEach(input => {
-                            if (!input.value) allFilled = false;
-                        });
-                        
-                        if (allFilled) {
-                            // Auto submit when all fields are filled
-                            document.querySelector('.verify-button').focus();
-                        }
-                    }
-                }
-            });
-            
-            // Backspace handling
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-            });
-        });
-
-        otpVerifyForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const otp = Array.from(otpInputs).map(input => input.value).join('');
-            const username = document.getElementById('usernameHidden').value;
-            const password = document.getElementById('passwordHidden').value;
-            
-            if (otp.length !== 6 || !/^\d+$/.test(otp)) {
-                alert('Masukkan OTP 6 digit yang valid');
-                return;
-            }
-            
-            fetch('http://localhost:8001/api/login-otp/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({ 
-                    username: username,
-                    password: password,
-                    otp: otp
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('otpModal').classList.remove('active');
-                    if (data.redirect_url) {
-                        window.location.href = data.redirect_url;
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    alert(data.message || 'OTP tidak valid. Silakan coba lagi.');
-                    
-                    otpInputs.forEach(input => input.value = '');
-                    otpInputs[0].focus();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
-            });
-        });
-        const resendLink = document.getElementById('resendOtp');
-        const otpTimer = document.getElementById('otpTimer');
-        const timerCounter = document.getElementById('timerCounter');
-        let timerInterval;
-        
-        function startOtpTimer() {
-            let seconds = 60;
-            resendLink.style.display = 'none';
-            otpTimer.style.display = 'block';
-            timerCounter.textContent = seconds;
-            
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                seconds--;
-                timerCounter.textContent = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    resendLink.style.display = 'inline';
-                    otpTimer.style.display = 'none';
-                }
-            }, 1000);
-        }
-        
-        resendLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('usernameHidden').value;
-            const password = document.getElementById('passwordHidden').value;
-            fetch('http://localhost:8001/api/login-otp/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({ 
-                    username: username,
-                    password: password
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.require_otp) {
-                    startOtpTimer();
-                    otpInputs.forEach(input => input.value = '');
-                    otpInputs[0].focus();
-                } else {
-                    alert(data.message || 'Gagal mengirim ulang OTP. Silakan coba lagi.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
-            });
-        });
 
         window.openLoginModal = function() {
             document.getElementById('loginModal').classList.add('active');
@@ -253,12 +104,6 @@
             document.getElementById('loginModal').classList.remove('active');
             loginForm.reset();
             loginError.style.display = 'none';
-        };
-        
-        window.closeOtpModal = function() {
-            document.getElementById('otpModal').classList.remove('active');
-            otpVerifyForm.reset();
-            clearInterval(timerInterval);
         };
     });
 </script>

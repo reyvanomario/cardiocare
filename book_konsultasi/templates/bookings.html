@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Konsultasi Saya - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Match the color scheme from list_dokter.html */
+    .booking-card {
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        background-color: #fff;
+        margin-bottom: 1.25rem;
+        border: 1px solid #eee;
+    }
+    
+    .booking-card:hover {
+        box-shadow: 0 8px 16px rgba(var(--primary-red-rgb, 220, 50, 50), 0.1);
+        transform: translateY(-5px);
+        border-color: rgba(var(--primary-red-rgb, 220, 50, 50), 0.2);
+    }
+    
+    .booking-date {
+        background-color: var(--primary-red);
+        color: white;
+        border-radius: 14px 14px 0 0;
+        padding: 1rem;
+    }
+    
+    .booking-date h5 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .booking-date p {
+        font-size: 0.9rem;
+    }
+    
+    .booking-details {
+        padding: 1.25rem;
+    }
+    
+    .booking-details p {
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+    
+    .booking-details strong {
+        color: #333;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--light-red);
+        margin-bottom: 1.5rem;
+    }
+    
+    .empty-state h4 {
+        font-weight: 700;
+        color: var(--primary-red);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: #777;
+        margin-bottom: 1.5rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Match button styling */
+    .btn-primary {
+        background-color: var(--primary-red);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--dark-red);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(var(--primary-red-rgb, 220, 50, 50), 0.3);
+    }
+    
+    /* Main container layout to match list_dokter.html */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-red);
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--light-red);
+        padding-bottom: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Konsultasi Saya</h2>
+    
+    {% if error_message %}
+    <div class="alert alert-warning" role="alert">
+        {{ error_message }}
+    </div>
+    <div class="empty-state mt-4">
+        <i class="bi bi-calendar-x"></i>
+        <h4>Belum Ada Konsultasi</h4>
+        <p>Anda belum memiliki jadwal konsultasi yang aktif. Silakan login untuk melihat atau membuat jadwal konsultasi baru.</p>
+        <a href="http://localhost:3000/login/" class="btn btn-primary">
+            <i class="fa fa-sign-in"></i> Login Sekarang
+        </a>
+    </div>
+    {% elif bookings %}
+    <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="booking-card">
+                <div class="booking-date">
+                    <h5>{{ booking.jadwal_tanggal }}</h5>
+                    <p>{{ booking.jadwal_waktu_mulai }} - {{ booking.jadwal_waktu_selesai }}</p>
+                </div>
+                <div class="booking-details">
+                    <p><strong>Dokter:</strong> {{ booking.nama_dokter }}</p>
+                    <p><strong>Tanggal Pemesanan:</strong> {{ booking.tanggal_pemesanan }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-calendar-x"></i>
+        <h4>Belum Ada Konsultasi</h4>
+        <p>Anda belum memiliki jadwal konsultasi yang aktif. Buat jadwal konsultasi baru untuk mulai berkonsultasi dengan dokter spesialis jantung.</p>
+        <a href="/konsultasi/jadwal/" class="btn btn-primary">
+            <i class="fa fa-calendar-plus-o"></i> Buat Jadwal Konsultasi
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    });
+</script>
+{% endblock %}
