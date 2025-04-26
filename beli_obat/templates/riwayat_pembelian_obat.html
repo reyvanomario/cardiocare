@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Riwayat Pembelian - CardioCarе{% endblock %}
+
+{% block extra_css %}
+<style>
+    .riwayat-section {
+        padding: 2rem 0;
+    }
+
+    .riwayat-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--soft-shadow);
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary-red);
+        transition: transform 0.3s ease;
+    }
+
+    .riwayat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .riwayat-header {
+        padding: 1rem;
+        background: var(--light-red);
+        border-bottom: 1px solid rgba(158, 26, 26, 0.1);
+        border-radius: 8px 8px 0 0;
+    }
+
+    .riwayat-body {
+        padding: 1.5rem;
+    }
+
+    .riwayat-title {
+        color: var(--primary-red);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .riwayat-detail {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detail-label {
+        color: var(--dark-text);
+        font-weight: 600;
+    }
+
+    .detail-value {
+        color: var(--primary-red);
+        font-weight: 500;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        color: var(--dark-text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="riwayat-section fade-in">
+        <h1 class="product-title mb-4">Riwayat Pembelian</h1>
+
+        {% if list_transaksi %}
+            {% for transaksi in list_transaksi %}
+            <div class="riwayat-card">
+                <div class="riwayat-header">
+                    <div class="riwayat-title">
+                        Transaksi #{{ transaksi.id }}
+                        <span class="text-muted" style="font-size: 0.8em; font-weight: normal">
+                            - {{ transaksi.waktu_transaksi|date:"d M Y H:i" }}
+                        </span>
+                    </div>
+                </div>
+                <div class="riwayat-body">
+                    <div class="riwayat-detail">
+                        <div class="detail-item">
+                            <span class="detail-label">Nama Obat:</span>
+                            <span class="detail-value">{{ transaksi.obat.nama_obat }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Jumlah:</span>
+                            <span class="detail-value">{{ transaksi.quantity }} item</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Biaya:</span>
+                            <span class="detail-value">Rp {{ transaksi.total_biaya|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clock-history" style="font-size: 3rem; color: var(--primary-red); margin-bottom: 1rem;"></i>
+                <h4>Belum ada riwayat pembelian</h4>
+                <p>Anda belum melakukan transaksi pembelian obat</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
