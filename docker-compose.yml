@@ -1,18 +1,18 @@
 services:
-  db:
+  db-main:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_main_data:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
-      - my-network   # <-- Tambahkan ini
+      - my-network  
 
   django-main:
     build: .
@@ -22,7 +22,7 @@ services:
     networks:
       - my-network
     depends_on:
-      - db
+      - db-main
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DEBUG: ${DEBUG}
@@ -40,7 +40,7 @@ services:
       - .:/app
 
 volumes:
-  postgres_data:
+  postgres_main_data:
 
 networks:
   my-network:
