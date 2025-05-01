@@ -97,18 +97,31 @@ WSGI_APPLICATION = 'cardio_care.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#      'default': {
+#          'ENGINE': 'django.db.backends.{}'.format(
+#              os.getenv('DB_ENGINE', 'sqlite3')
+#          ),
+#          'NAME': os.getenv('DB_NAME', 'polls'),
+#          'USER': os.getenv('DB_USER'),
+#          'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
+#          'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+#          'PORT': os.getenv('DB_PORT', 5432),
+#      }
+#  }
+
 DATABASES = {
      'default': {
-         'ENGINE': 'django.db.backends.{}'.format(
-             os.getenv('DB_ENGINE', 'sqlite3')
-         ),
-         'NAME': os.getenv('DB_NAME', 'polls'),
-         'USER': os.getenv('DB_USER'),
-         'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
-         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-         'PORT': os.getenv('DB_PORT', 5432),
+         'ENGINE': 'postgresql',
+         'NAME': 'kelompok_38_db',
+         'USER': 'kelompok_38',
+         'PASSWORD': 'a1TRf6sWqi6w2Yqp',
+         'HOST': '152.118.29.233',
+         'PORT': '5432',
      }
  }
+
+
 
 
 # Password validation
