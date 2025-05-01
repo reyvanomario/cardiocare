@@ -88,6 +88,10 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  tls:
+    - hosts:
+        - kelompok-38-cardiocare.pkpl.cs.ui.ac.id
+      secretName: kelompok-38-tls
   ingressClassName: nginx
   rules:
   - host: $INGRESS_HOST.pkpl.cs.ui.ac.id
