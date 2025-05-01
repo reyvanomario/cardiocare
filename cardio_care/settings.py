@@ -112,7 +112,7 @@ WSGI_APPLICATION = 'cardio_care.wsgi.application'
 
 DATABASES = {
      'default': {
-         'ENGINE': 'postgresql',
+         'ENGINE': 'django.db.backends.postgresql',
          'NAME': 'kelompok_38_db',
          'USER': 'kelompok_38',
          'PASSWORD': 'a1TRf6sWqi6w2Yqp',
