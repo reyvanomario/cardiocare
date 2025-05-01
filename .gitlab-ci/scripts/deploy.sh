@@ -59,7 +59,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: $APP_NAME
-  namespace: kelompok-38-ns
   labels:
     app: $APP_NAME
 spec:
