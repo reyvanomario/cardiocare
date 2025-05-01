@@ -29,9 +29,9 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 
-USE_X_FORWARDED_HOST = True  # Penting untuk mengenali host dari Ingress
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Pastikan Django tahu bahwa request via HTTPS
-SECURE_SSL_REDIRECT = False  # Nonaktifkan redirect HTTPS di Django (karena Ingress sudah menangani SSL)
+# USE_X_FORWARDED_HOST = True  # Penting untuk mengenali host dari Ingress
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Pastikan Django tahu bahwa request via HTTPS
+# SECURE_SSL_REDIRECT = False  # Nonaktifkan redirect HTTPS di Django (karena Ingress sudah menangani SSL)
 
 
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
