@@ -67,8 +67,8 @@ spec:
     app: $APP_NAME
   ports:
     - protocol: TCP
-      port: $PORT
-      targetPort: $PORT
+      port: 80
+      targetPort: 8000
 EOF
 
 kubectl apply -f service.yaml --kubeconfig ./kubeconfig
@@ -97,7 +97,7 @@ spec:
           service:
             name: $APP_NAME
             port:
-              number: $PORT
+              number: 80
         path: /
         pathType: Prefix
 EOF
