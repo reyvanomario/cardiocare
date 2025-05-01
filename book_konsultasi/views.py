@@ -251,7 +251,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
         
         if not user_data:
             next_url = request.build_absolute_uri()
-            login_url = f"http://localhost:3000/login/?next={next_url}"
+            login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/?next={next_url}"
             
             return Response(
                 {"error": "Authentication required", "redirect": login_url}, 
