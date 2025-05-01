@@ -28,6 +28,12 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
+
+USE_X_FORWARDED_HOST = True  # Penting untuk mengenali host dari Ingress
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Pastikan Django tahu bahwa request via HTTPS
+SECURE_SSL_REDIRECT = False  # Nonaktifkan redirect HTTPS di Django (karena Ingress sudah menangani SSL)
+
+
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-auth']
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
