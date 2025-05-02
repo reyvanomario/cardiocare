@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-# SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-SECRET_KEY = 'django-insecure-bk=40re(22ir)7btki29_-^7hr6fq(s!)$ct2#e52fz#_%81n7'
+SECRET_KEY = os.environ.get("PODS_DJANGO_SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = bool(os.environ.get("DEBUG", default=0))
-DEBUG = True
+DEBUG = bool(os.environ.get("PODS_DEBUG", default=0))
+# DEBUG = True
 
 
 # USE_X_FORWARDED_HOST = True  # Penting untuk mengenali host dari Ingress
@@ -37,13 +37,13 @@ DEBUG = True
 
 
 
-ALLOWED_HOSTS = ['kelompok-38-cardiocare.pkpl.cs.ui.ac.id', 'localhost', '127.0.0.1', 'django-auth']
-# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+# ALLOWED_HOSTS = ['kelompok-38-cardiocare.pkpl.cs.ui.ac.id', 'localhost', '127.0.0.1', 'django-auth']
+ALLOWED_HOSTS = os.getenv("PODS_DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 
-# CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
-CSRF_TRUSTED_ORIGINS = ['https://kelompok-38-cardiocare.pkpl.cs.ui.ac.id']
+CSRF_TRUSTED_ORIGINS = os.getenv("PODS_DJANGO_CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
+# CSRF_TRUSTED_ORIGINS = ['https://kelompok-38-cardiocare.pkpl.cs.ui.ac.id']
 
 # Application definition
 
@@ -97,29 +97,20 @@ WSGI_APPLICATION = 'cardio_care.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.{}'.format(
-#              os.getenv('DB_ENGINE', 'sqlite3')
-#          ),
-#          'NAME': os.getenv('DB_NAME', 'polls'),
-#          'USER': os.getenv('DB_USER'),
-#          'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
-#          'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-#          'PORT': os.getenv('DB_PORT', 5432),
-#      }
-#  }
-
 DATABASES = {
      'default': {
-         'ENGINE': 'django.db.backends.postgresql',
-         'NAME': 'kelompok_38_db',
-         'USER': 'kelompok_38',
-         'PASSWORD': 'a1TRf6sWqi6w2Yqp',
-         'HOST': '152.118.29.233',
-         'PORT': '5432',
+         'ENGINE': 'django.db.backends.{}'.format(
+             os.getenv('PODS_DB_ENGINE', 'sqlite3')
+         ),
+         'NAME': os.getenv('PODS_DB_NAME', 'polls'),
+         'USER': os.getenv('PODS_DB_USER'),
+         'PASSWORD': os.getenv('PODS_DB_PASSWORD', 'password'),
+         'HOST': os.getenv('PODS_DB_HOST', '127.0.0.1'),
+         'PORT': os.getenv('PODS_DB_PORT', 5432),
      }
  }
+
+
 
 
 
