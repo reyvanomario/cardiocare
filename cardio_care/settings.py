@@ -103,7 +103,7 @@ DATABASES = {
              os.getenv('PODS_DB_ENGINE', 'sqlite3')
          ),
          'NAME': os.getenv('PODS_DB_NAME', 'polls'),
-         'USER': os.getenv('PODS_DB_USER'),
+         'USER': os.getenv('PODS_DB_USERNAME'),
          'PASSWORD': os.getenv('PODS_DB_PASSWORD', 'password'),
          'HOST': os.getenv('PODS_DB_HOST', '127.0.0.1'),
          'PORT': os.getenv('PODS_DB_PORT', 5432),
