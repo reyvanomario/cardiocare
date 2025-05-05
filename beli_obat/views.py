@@ -55,7 +55,7 @@ def test_view(request):
 
 def validate_jwt_and_get_user(token):
     try:
-        public_key_response = requests.get('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/get-public-key/')
+        public_key_response = requests.get('https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/api/get-public-key/')
         public_key_response.raise_for_status()
         public_key = public_key_response.json()['public_key']
 
@@ -77,7 +77,7 @@ def validate_jwt_and_get_user(token):
         # 3. Cek user 
         try:
             user_response = requests.get(
-                f'http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/user/',
+                f'https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/api/user/',
                 cookies={'jwt': token}
             )
             user_data = user_response.json()
