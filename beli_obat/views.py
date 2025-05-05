@@ -248,7 +248,7 @@ def checkout_obat(request, obat_id, quantity):
     request.session['pending_transaction'] = {
         'obat_id': str(obat_id),
         'quantity': quantity,
-        'total_biaya': float(total_biaya),
+        'total_biaya': total_biaya,
     }
 
     return HttpResponseRedirect(reverse('beli_obat:otp_view'))
