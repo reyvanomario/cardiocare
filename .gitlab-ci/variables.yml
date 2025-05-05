@@ -4,7 +4,7 @@ variables:
   MIN_MEMORY: 170Mi
   MAX_CPU: 333m
   MAX_MEMORY: 341Mi
-  PORT: 80
+  PORT: 8000
 
   # Image and Deployment Variables, It's better to not change these variables below
   # because they are used in the deploy script
