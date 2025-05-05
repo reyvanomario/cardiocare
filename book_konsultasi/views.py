@@ -206,7 +206,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
             return None
             
         try:
-            public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+            public_key_response = requests.get('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/get-public-key/')
             public_key_response.raise_for_status()
             public_key = public_key_response.json()['public_key']
             
@@ -334,7 +334,7 @@ class KonsultasiSayaView(APIView):
                 return render(request, 'bookings.html', {'error_message': 'Anda belum login'})
         
         try:
-            public_key_response = requests.get('http://django-auth:8000/api/get-public-key/')
+            public_key_response = requests.get('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/get-public-key/')
             public_key_response.raise_for_status()
             public_key = public_key_response.json()['public_key']
             
