@@ -165,7 +165,7 @@
 <script>
     async function handleLogout() {
       try {
-        const response = await fetch('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/logout/', {
+        const response = await fetch('http://cardiocare-auth-backend.kelompok-38-ns.svc.cluster.local/api/logout/', {
           method: 'POST',
           credentials: 'include'  // mengirim cookie buat dihapus
         });
