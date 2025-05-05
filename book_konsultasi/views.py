@@ -206,7 +206,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
             return None
             
         try:
-            public_key_response = requests.get('https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/api/get-public-key/')
+            public_key_response = requests.get('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/get-public-key/')
             public_key_response.raise_for_status()
             public_key = public_key_response.json()['public_key']
             
@@ -251,7 +251,7 @@ class BookKonsultasiView(RateLimitMixin, GenericAPIView):
         
         if not user_data:
             next_url = request.build_absolute_uri()
-            login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/?next={next_url}"
+            login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/?next={next_url}"
             
             return Response(
                 {"error": "Authentication required", "redirect": login_url}, 
@@ -334,7 +334,7 @@ class KonsultasiSayaView(APIView):
                 return render(request, 'bookings.html', {'error_message': 'Anda belum login'})
         
         try:
-            public_key_response = requests.get('https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/api/get-public-key/')
+            public_key_response = requests.get('http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/api/get-public-key/')
             public_key_response.raise_for_status()
             public_key = public_key_response.json()['public_key']
             
