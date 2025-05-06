@@ -212,7 +212,7 @@ def show_checkout_page(request, obat_id):
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
         next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
-        login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/?next={next_url}"
+        login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/?next={next_url}"
         return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
@@ -233,7 +233,7 @@ def checkout_obat(request, obat_id, quantity):
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
         next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
-        login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/?next={next_url}"
+        login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/?next={next_url}"
         return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
@@ -262,7 +262,7 @@ def otp_view(request):
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
 
-        login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/"
+        login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/"
         return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
@@ -315,7 +315,7 @@ def verify_otp(request):
         if token is None:
             # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
 
-            login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/"
+            login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/"
             return HttpResponseRedirect(login_url)
 
         user, error = validate_jwt_and_get_user(token)
@@ -379,7 +379,7 @@ def view_riwayat_pembelian_obat(request):
     if token is None:
         # return HttpResponseForbidden("Token tidak ditemukan. Silakan login.")
         next_url = request.build_absolute_uri()  # Contoh: http://localhost:8000/checkout-page/...
-        login_url = f"http://cardiocare-auth.kelompok-38-ns.svc.cluster.local/login/?next={next_url}"
+        login_url = f"https://kelompok-38-cardiocare-auth.pkpl.cs.ui.ac.id/login/?next={next_url}"
         return HttpResponseRedirect(login_url)
 
     user, error = validate_jwt_and_get_user(token)
